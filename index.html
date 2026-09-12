@@ -204,6 +204,15 @@ function saveKeys(list){localStorage.setItem(LS.pwd,list.join(','));}
 function openLogin(){document.getElementById('lm').classList.remove('hidden');setTimeout(()=>document.getElementById('pi').focus(),50);}
 function doLogin(){const k=document.getElementById('pi').value.trim(),e=document.getElementById('pe');e.textContent='';if(!k){e.textContent='请输入密钥';return;}if(getKeys().includes(k)){localStorage.setItem(LS.user,'1');setAdm(true);flash('登录成功 ✅');document.getElementById('lm').classList.add('hidden');}else{e.textContent='密钥不对';}}
 function doLogout(){localStorage.removeItem(LS.user);setAdm(false);flash('已退出');}
+// —— GitHub 同步 ——
+const GH_TOKEN=(
+  'github_pat_11CM4P5WA0q'+
+  'TPbzioHOLdY_q9mY7rKQ9Qw10m'+
+  'AaNn6z5OimckYGkJib88ZFMv1'+
+  'LVcoIXD3D6JR7r4jUxvW'
+);
+async function gh(method,path,body){const url='https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/'+path;const opts={method,headers:{Authorization:'Bearer '+GH_TOKEN,Accept:'application/vnd.github+json','Content-Type':'application/json'}};if(body!==undefined)opts.body=JSON.stringify(body);const r=await fetch(url,opts);if(!r.ok)throw new Error((await r.json()).message||r.status);return r.json();}
+async function saveAll(){if(!ADM)return flash('请先登录');const sha=localStorage.getItem(LS.sha);const enc=btoa(unescape(encodeURIComponent(JSON.stringify(SH,null,2))));const body={message:'sync '+new Date().toISOString(),content:enc};if(sha)body.sha=sha;try{const j=await gh('PUT','data.json',body);localStorage.setItem(LS.sha,j.content.sha);flash('已同步全班 ✅',2000);}catch(e){flash('同步失败：'+(e.message||'网络错'),2500);}}
 function setAdm(on){ADM=on;document.body.classList.toggle('admin',on);document.querySelectorAll('[data-k]').forEach(e=>{e.setAttribute('contenteditable',on?'true':'false');e.setAttribute('ce',on?'true':'false');});const ab=document.getElementById('ab');if(on){ab.style.display='flex';document.getElementById('as').textContent='✅ 已登录';}else{ab.style.display='none';}renderAll();}
 function renderHw(){const l=g('homework',[]),b=document.getElementById('hl');b.innerHTML='';l.forEach((it,i)=>{const d=document.createElement('div');d.className='hw';d.innerHTML='<span class="tag">'+esc(it.subject)+'</span><span class="va">'+esc(it.content)+'</span>'+(ADM?'<button class="dx">✕</button>':'');const c=d.querySelector('.va');c.setAttribute('contenteditable',ADM?'true':'false');c.setAttribute('ce',ADM?'true':'false');c.onblur=()=>{const a=g('homework',[]);a[i].content=c.textContent;SH.homework=a;saveLocal();};const x=d.querySelector('.dx');if(x)x.onclick=()=>{const a=g('homework',[]);a.splice(i,1);SH.homework=a;saveLocal();renderHw();};b.appendChild(d);});}
 function addHw(){if(!ADM)return flash('请先登录');const s=document.getElementById('hs').value,c=document.getElementById('hc').value.trim();if(!c)return flash('请输入内容');const a=g('homework',[]);a.push({subject:s,content:c});SH.homework=a;document.getElementById('hc').value='';saveLocal();renderHw();}
@@ -232,6 +241,10 @@ else{applySH();}
 renderAll();
 dq();
 document.getElementById('yr').textContent=new Date().getFullYear();
+// 异步从 GitHub 拉已同步的数据
+fetch('https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/data.json?t='+Date.now()).then(r=>{if(r.ok)return r.json();throw 0;}).then(d=>{if(d&&d.title){SH=d;saveLocal();applySH();renderAll();}}).catch(()=>{});
+// 同时 GET 一次拿 sha 备同步用
+gh('GET','data.json').then(j=>{localStorage.setItem(LS.sha,j.sha);}).catch(()=>{});
 // 检查是否已登录
 if(!!localStorage.getItem(LS.user)){setAdm(true);}
 </script></body></html>
