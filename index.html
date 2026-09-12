@@ -180,98 +180,59 @@ footer{text-align:center;color:var(--tl);font-size:clamp(9px,1.1vw,11px);padding
 <section class="page" id="p-message"><div class="card"><h2>✉️ 留言箱</h2><p class="mt" style="margin-bottom:14px">留言仅存你自己的浏览器，不上传服务器（隐私保护）。</p><div class="mf"><input id="mn" placeholder="名字（留空=匿名）" maxlength="20"><textarea id="mc" placeholder="写下你想对班级说的话…" maxlength="200"></textarea><div><button class="btn bp" onclick="addMsg()">📨 发布</button></div></div><div class="ml" id="ml"></div></div></section>
 <section class="page" id="p-schedule"><div class="card"><h2>🗓️ 课程表</h2><div class="tb"><button class="btn bp lock" onclick="saveAll()">💾 立即同步</button></div><div class="sw"><table class="sc"><thead><tr><th>节次</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th></tr></thead><tbody id="sb"></tbody></table></div></div></section>
 </main><footer><div data-k="footer">阳光班班级主页 · 班主任可修改内容 · 内容同步至 GitHub</div><div style="margin-top:4px">© <span id="yr"></span> 班级主页</div></footer></div>
-<div class="mm hidden" id="lm"><div class="md"><h3>🔑 管理员登录</h3><p class="mt" style="margin-bottom:10px">班主任输入 Token 登录后可编辑并同步内容</p><div class="row"><label>GitHub Fine-grained Token</label><input id="pi" placeholder="github_pat_xxx"></div><div class="err" id="pe"></div><div class="ac"><button class="btn bp" onclick="doLogin()">登录</button></div></div></div>
-</div>
-</div>
+<div class="mm hidden" id="lm"><div class="md"><h3>🔑 管理员登录</h3><p class="mt" style="margin-bottom:10px">默认账号 <b>admin</b> / <b>123456</b>，登录后可改密码</p><div class="row"><label>用户名</label><input id="pi" placeholder="admin"></div><div class="row"><label>密码</label><input id="pp" type="password" placeholder="••••••"></div><div class="err" id="pe"></div><div class="ac"><button class="btn bd" onclick="openPwd()" style="margin-right:auto">改密码</button><button class="btn bp" onclick="doLogin()">登录</button></div></div></div>
+<div class="mm hidden" id="pm"><div class="md"><h3>🔐 修改密码</h3><div class="row"><label>当前密码</label><input id="cp" type="password"></div><div class="row"><label>新密码（至少4位）</label><input id="n1" type="password"></div><div class="row"><label>确认新密码</label><input id="n2" type="password"></div><div class="err" id="pe2"></div><div class="ac"><button class="btn bp" onclick="doPwdConfirm()">确认修改</button></div></div></div>
 <script>
 const Q=["读万卷书，行万里路。","不积跬步，无以至千里。","业精于勤，荒于嬉。","少壮不努力，老大徒伤悲。","宝剑锋从磨砺出。","书山有路勤为径。","千里之行，始于足下。","学如逆水行舟。","勤能补拙。","今日事今日毕。","一寸光阴一寸金。","莫等闲，白了少年头。","黑发不知勤学早。","绳锯木断，水滴石穿。","失败乃成功之母。","有志者事竟成。","天行健，君子以自强不息。","三人行必有我师。","敏而好学，不耻下问。","温故而知新。","知识就是力量。","读书破万卷。","路漫漫其修远兮。","海阔凭鱼跃。","世上无难事。","虚心使人进步。","百尺竿头更进一步。","知之为知之。"];
 const GH_USER='zkc301', GH_REPO='class-home', GH_BRANCH='main';
-const LS={token:'gh_token',sha:'gh_data_sha'};
+const LS={token:'gh_token',sha:'gh_data_sha',pwd:'ch_pwd',user:'ch_user',data:'ch_data',msg:'class_home_msg_v1'};
+const DEF_PWD='admin:123456';
 const DEF={title:'阳光班班级主页',infoClass:'三年二班',infoTeacher:'王老师',infoCount:'42人',infoSlogan:'向阳而生，逐光而行',notice:'1. 周五大扫除，请值日同学准时到岗。<br>2. 本周三穿校服佩戴红领巾。<br>3. 读书角已上新，欢迎借阅。',log:'【9月1日】开学第一天，精神饱满，新书到位。\n\n【9月2日】语文朗读比赛，张小明表现突出。\n\n【9月3日】天气晴朗，课间操全员到齐。',footer:'阳光班班级主页 · 班主任可修改内容 · 内容同步至 GitHub',homework:[{subject:'语文',content:'抄写生字词各两遍，背诵古诗三首'},{subject:'数学',content:'课本P12-13练习题1-5'},{subject:'英语',content:'听读Unit2，完成练习册'}],books:[{title:'夏洛的网',author:'E.B.怀特',desc:'关于爱、生命与承诺的温柔故事。'},{title:'小王子',author:'圣埃克苏佩里',desc:'真正重要的东西用眼睛是看不见的。'},{title:'窗边的小豆豆',author:'黑柳彻子',desc:'巴学园里发生的趣事。'}],honor:[{name:'张小明',reason:'数学竞赛一等奖'},{name:'李华',reason:'本月之星·乐于助人'},{name:'王芳',reason:'读书笔记优秀'}],duty:[{item:'擦黑板',person:'张小明',note:'每节课间'},{item:'扫地',person:'李华、王芳',note:'放学后'},{item:'倒垃圾',person:'刘强',note:'下午放学前'},{item:'关门窗灯',person:'值日班长',note:'最后离开'}],schedule:[['第一节','语文','数学','英语','语文','数学'],['第二节','数学','语文','数学','英语','语文'],['第三节','英语','科学','语文','数学','英语'],['第四节','音乐','道法','体育','科学','美术'],['第五节','美术','体育','道法','音乐','道法'],['第六节','班会','阅读','书法','阅读','自习']]};
-let SH={},ADM=false,MK='class_home_msg_v1';
+let SH={},ADM=false;MK=LS.msg;
 function dq(){const n=new Date(),s=n.getFullYear()*10000+(n.getMonth()+1)*100+n.getDate();document.getElementById('dq').textContent=Q[s%Q.length];const w=['日','一','二','三','四','五','六'][n.getDay()];document.getElementById('td').textContent=n.getFullYear()+'年'+(n.getMonth()+1)+'月'+n.getDate()+'日 星期'+w;}
 function flash(m,t=1600){const d=document.createElement('div');d.textContent=m;d.style.cssText='position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#4ea3cc;color:#fff;padding:10px 22px;border-radius:24px;z-index:999;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.2)';document.body.appendChild(d);setTimeout(()=>d.remove(),t);}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function g(k){return SH[k]!==undefined?SH[k]:DEF[k];}
-async function gh(method,path,body){
-  const t=localStorage.getItem(LS.token);if(!t)throw new Error('请先登录');
-  const url=path.startsWith('http')?path:'https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/'+path;
-  const opts={method,headers:{Authorization:'Bearer '+t,Accept:'application/vnd.github+json','Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'}};
-  if(body!==undefined)opts.body=JSON.stringify(body);
-  const r=await fetch(url,opts);
-  if(r.status===401){localStorage.removeItem(LS.token);setAdm(false);throw new Error('Token 无效，请重新登录');}
-  if(r.status===403)throw new Error('Token 权限不足，请确认有 Contents 读写权限');
-  const j=await r.json();
-  if(!r.ok)throw new Error(j.message||('HTTP '+r.status));
-  return j;
-}
-async function loadData(){
-  // 优先从 GitHub raw 读取（CORS 友好，无需 token）
-  try{
-    const r=await fetch('https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/data.json?t='+Date.now());
-    if(r.ok){SH=await r.json();}
-    else throw new Error('raw failed');
-  }catch(e){
-    // fallback：用 API 读（需要 token）
-    try{const j=await gh('GET','data.json');SH=JSON.parse(atob(j.content));localStorage.setItem(LS.sha,j.sha);}
-    catch(e2){
-      if(e2.message&&e2.message.includes('Not Found')){SH=JSON.parse(JSON.stringify(DEF));}
-      else{SH=JSON.parse(JSON.stringify(DEF));}
-    }
-  }
-  applySH();renderAll();
-}
-async function saveData(isInit){
-  const sha=localStorage.getItem(LS.sha);
-  const enc=btoa(unescape(encodeURIComponent(JSON.stringify(SH,null,2))));
-  const body={message:(isInit?'init':'update')+' '+new Date().toISOString(),content:enc,branch:GH_BRANCH};
-  if(sha)body.sha=sha;
-  try{const j=await gh('PUT','data.json',body);localStorage.setItem(LS.sha,j.content.sha);return true;}
-  catch(e){console.error(e);return false;}
-}
-function applySH(){
-  document.querySelectorAll('[data-k]').forEach(e=>{const k=e.dataset.k;const v=SH[k];if(v===undefined)return;if(k==='log')e.innerHTML=String(v).replace(/\n/g,'<br>');else e.innerHTML=v;});
-  document.title=SH.title||'班级主页';
-}
-function collect(){const p={};document.querySelectorAll('[data-k]').forEach(e=>{let k=e.dataset.k,v=e.innerHTML;if(k==='log')v=e.innerText;p[k]=v;});['homework','books','honor','duty','schedule'].forEach(k=>p[k]=g(k,[]));return p;}
-function setAdm(on){ADM=on;document.body.classList.toggle('admin',on);document.querySelectorAll('[data-k]').forEach(e=>e.setAttribute('ce',on?'true':'false'));document.getElementById('ab').style.display=on?'flex':'none';renderAll();}
+function applySH(){document.querySelectorAll('[data-k]').forEach(e=>{const k=e.dataset.k;const v=SH[k];if(v===undefined)return;if(k==='log')e.innerHTML=String(v).replace(/\n/g,'<br>');else e.innerHTML=v;});document.title=SH.title||'班级主页';}
+// —— 本地存储 ——
+function saveLocal(){try{localStorage.setItem(LS.data,JSON.stringify(SH))}catch(e){}}
+function loadLocal(){try{const d=localStorage.getItem(LS.data);if(d){SH=JSON.parse(d);return true}}catch(e){}return false}
+function getPwd(){return localStorage.getItem(LS.pwd)||DEF_PWD}
+// —— 账号登录/登出 ——
 function openLogin(){document.getElementById('lm').classList.remove('hidden');setTimeout(()=>document.getElementById('pi').focus(),50);}
-function doLogin(){const t=document.getElementById('pi').value.trim(),e=document.getElementById('pe');e.textContent='';if(!t){e.textContent='请输入 Token';return;}
-  gh('GET','data.json').then(()=>{localStorage.setItem(LS.token,t);setAdm(true);flash('登录成功 ✅');document.getElementById('lm').classList.add('hidden');}).catch(err=>{e.textContent=err.message;});}
-function doLogout(){localStorage.removeItem(LS.token);localStorage.removeItem(LS.sha);setAdm(false);flash('已退出');}
-
-function doPwd(){const c=document.getElementById('cp').value,n1=document.getElementById('n1').value,n2=document.getElementById('n2').value,e=document.getElementById('pe2');e.textContent='';
-  const cur=localStorage.getItem(LS.pwd)||'';if(cur&&c!==cur){e.textContent='当前密码不对';return;}
-  if(!n1||!n2){e.textContent='请填完整';return;}if(n1!==n2){e.textContent='两次不一致';return;}if(n1.length<4){e.textContent='至少4位';return;}
-  localStorage.setItem(LS.pwd,n1);document.getElementById('pm').classList.add('hidden');flash('密码已更新');}
-async function openSync(){if(!ADM)return flash('请先登录');await doSync();}
-async function doSync(){SH=collect();const ok=await saveData(false);if(ok){flash('已同步全班 ✅',2200);}else flash('同步失败，请重试',2200);}
-function renderHw(){const l=g('homework',[]),b=document.getElementById('hl');b.innerHTML='';l.forEach((it,i)=>{const d=document.createElement('div');d.className='hw';d.innerHTML='<span class="tag">'+esc(it.subject)+'</span><span class="va">'+esc(it.content)+'</span>'+(ADM?'<button class="dx">✕</button>':'');const c=d.querySelector('.va');c.setAttribute('ce',ADM?'true':'false');c.onblur=()=>{const a=g('homework',[]);a[i].content=c.textContent;SH.homework=a;};const x=d.querySelector('.dx');if(x)x.onclick=()=>{const a=g('homework',[]);a.splice(i,1);SH.homework=a;renderHw();};b.appendChild(d);});}
-function addHw(){if(!ADM)return flash('请先登录');const s=document.getElementById('hs').value,c=document.getElementById('hc').value.trim();if(!c)return flash('请输入内容');const a=g('homework',[]);a.push({subject:s,content:c});SH.homework=a;document.getElementById('hc').value='';renderHw();}
-function renderBooks(){const l=g('books',[]),g2=document.getElementById('bl');g2.innerHTML='';l.forEach((b,i)=>{const d=document.createElement('div');d.className='bk';d.innerHTML='<div class="bt">'+esc(b.title)+'</div><div class="ba">'+esc(b.author)+'</div><div class="va">'+esc(b.desc)+'</div>'+(ADM?'<button class="dx">✕</button>':'');g2.appendChild(d);const[t,a2,dd]=d.querySelectorAll('.bt,.ba,.va');[t,a2,dd].forEach(x=>x.setAttribute('ce',ADM?'true':'false'));t.onblur=()=>{const z=g('books',[]);z[i].title=t.textContent;SH.books=z;};a2.onblur=()=>{const z=g('books',[]);z[i].author=a2.textContent;SH.books=z;};dd.onblur=()=>{const z=g('books',[]);z[i].desc=dd.textContent;SH.books=z;};const x=d.querySelector('.dx');if(x)x.onclick=()=>{const z=g('books',[]);z.splice(i,1);SH.books=z;renderBooks();};});}
-function addBook(){if(!ADM)return flash('请先登录');const t=document.getElementById('bt').value.trim(),a=document.getElementById('ba').value.trim(),d=document.getElementById('bd').value.trim();if(!t)return flash('请输入书名');const z=g('books',[]);z.push({title:t,author:a||'佚名',desc:d||'值得一读'});SH.books=z;['bt','ba','bd'].forEach(id=>document.getElementById(id).value='');renderBooks();}
-function renderHonor(){const l=g('honor',[]),b=document.getElementById('hl2');b.innerHTML='';const m=['🥇','🥈','🥉','⭐'];l.forEach((h,i)=>{const d=document.createElement('div');d.className='hr';d.innerHTML='<span class="medal">'+m[i%m.length]+'</span><div><div class="va">'+esc(h.name)+'</div><div class="mt">'+esc(h.reason)+'</div></div>'+(ADM?'<button class="dx" style="margin-left:auto">✕</button>':'');b.appendChild(d);const[n,r]=d.querySelectorAll('.va,.mt');[n,r].forEach(x=>x.setAttribute('ce',ADM?'true':'false'));n.onblur=()=>{const z=g('honor',[]);z[i].name=n.textContent;SH.honor=z;};r.onblur=()=>{const z=g('honor',[]);z[i].reason=r.textContent;SH.honor=z;};const x=d.querySelector('.dx');if(x)x.onclick=()=>{const z=g('honor',[]);z.splice(i,1);SH.honor=z;renderHonor();};});}
-function addHonor(){if(!ADM)return flash('请先登录');const n=document.getElementById('hn').value.trim(),r=document.getElementById('hr').value.trim();if(!n)return flash('请输入姓名');const z=g('honor',[]);z.push({name:n,reason:r||'优秀'});SH.honor=z;['hn','hr'].forEach(id=>document.getElementById(id).value='');renderHonor();}
-function renderDuty(){const l=g('duty',[]),b=document.getElementById('db');b.innerHTML='';l.forEach((d,i)=>{const tr=document.createElement('tr');tr.innerHTML='<td class="va">'+esc(d.item)+'</td><td class="va">'+esc(d.person)+'</td><td><span class="va">'+esc(d.note)+'</span>'+(ADM?'<button class="dx">✕</button>':'')+'</td>';b.appendChild(tr);const[ii,pp,nn]=tr.querySelectorAll('.va');[ii,pp,nn].forEach(x=>x.setAttribute('ce',ADM?'true':'false'));ii.onblur=()=>{const z=g('duty',[]);z[i].item=ii.textContent;SH.duty=z;};pp.onblur=()=>{const z=g('duty',[]);z[i].person=pp.textContent;SH.duty=z;};nn.onblur=()=>{const z=g('duty',[]);z[i].note=nn.textContent;SH.duty=z;};const x=tr.querySelector('.dx');if(x)x.onclick=()=>{const z=g('duty',[]);z.splice(i,1);SH.duty=z;renderDuty();};});}
-function addDuty(){if(!ADM)return flash('请先登录');const it=document.getElementById('di').value.trim(),p=document.getElementById('dp').value.trim();if(!it)return flash('请输入项目');const z=g('duty',[]);z.push({item:it,person:p||'待定',note:''});SH.duty=z;['di','dp'].forEach(id=>document.getElementById(id).value='');renderDuty();}
-function renderSchedule(){const r=g('schedule',[]),b=document.getElementById('sb');b.innerHTML='';r.forEach((row,ri)=>{const tr=document.createElement('tr');tr.innerHTML=row.map((c,ci)=>'<td class="'+(ci===0?'dc':'')+' va">'+esc(c)+'</td>').join('');b.appendChild(tr);tr.querySelectorAll('.va').forEach((el,ci)=>{el.setAttribute('ce',ADM?'true':'false');el.onblur=()=>{const z=g('schedule',[]);if(z[ri])z[ri][ci]=el.textContent;SH.schedule=z;};});});}
+function doLogin(){const u=document.getElementById('pi').value.trim(),p=document.getElementById('pp').value.trim(),e=document.getElementById('pe');e.textContent='';if(!u||!p){e.textContent='请填用户名和密码';return;}const[eu,ep]=getPwd().split(':');if(u===eu&&p===ep){localStorage.setItem(LS.user,u);setAdm(true);flash('登录成功 ✅');document.getElementById('lm').classList.add('hidden');}else{e.textContent='用户名或密码不对';}}
+function doLogout(){localStorage.removeItem(LS.user);setAdm(false);flash('已退出');}
+function openPwd(){document.getElementById('lm').classList.add('hidden');document.getElementById('pm').classList.remove('hidden');setTimeout(()=>document.getElementById('cp').focus(),50);}
+function doPwdConfirm(){const c=document.getElementById('cp').value,n1=document.getElementById('n1').value,n2=document.getElementById('n2').value,e=document.getElementById('pe2');e.textContent='';const[,ep]=getPwd().split(':');if(c!==ep){e.textContent='当前密码不对';return;}if(!n1||!n2){e.textContent='请填完整';return;}if(n1!==n2){e.textContent='两次不一致';return;}if(n1.length<4){e.textContent='至少4位';return;}const cur=getPwd();const curU=cur.split(':')[0];localStorage.setItem(LS.pwd,curU+':'+n1);document.getElementById('pm').classList.add('hidden');flash('密码已更新 ✅');}
+function setAdm(on){ADM=on;document.body.classList.toggle('admin',on);document.querySelectorAll('[data-k]').forEach(e=>e.setAttribute('ce',on?'true':'false'));const ab=document.getElementById('ab');const as=document.getElementById('as');if(on){ab.style.display='flex';as.textContent='👤 '+localStorage.getItem(LS.user)||'admin';}else{ab.style.display='none';}renderAll();}
+function renderHw(){const l=g('homework',[]),b=document.getElementById('hl');b.innerHTML='';l.forEach((it,i)=>{const d=document.createElement('div');d.className='hw';d.innerHTML='<span class="tag">'+esc(it.subject)+'</span><span class="va">'+esc(it.content)+'</span>'+(ADM?'<button class="dx">✕</button>':'');const c=d.querySelector('.va');c.setAttribute('ce',ADM?'true':'false');c.onblur=()=>{const a=g('homework',[]);a[i].content=c.textContent;SH.homework=a;saveLocal();};const x=d.querySelector('.dx');if(x)x.onclick=()=>{const a=g('homework',[]);a.splice(i,1);SH.homework=a;saveLocal();renderHw();};b.appendChild(d);});}
+function addHw(){if(!ADM)return flash('请先登录');const s=document.getElementById('hs').value,c=document.getElementById('hc').value.trim();if(!c)return flash('请输入内容');const a=g('homework',[]);a.push({subject:s,content:c});SH.homework=a;document.getElementById('hc').value='';saveLocal();renderHw();}
+function renderBooks(){const l=g('books',[]),g2=document.getElementById('bl');g2.innerHTML='';l.forEach((b,i)=>{const d=document.createElement('div');d.className='bk';d.innerHTML='<div class="bt">'+esc(b.title)+'</div><div class="ba">'+esc(b.author)+'</div><div class="va">'+esc(b.desc)+'</div>'+(ADM?'<button class="dx">✕</button>':'');g2.appendChild(d);const[t,a2,dd]=d.querySelectorAll('.bt,.ba,.va');[t,a2,dd].forEach(x=>x.setAttribute('ce',ADM?'true':'false'));t.onblur=()=>{const z=g('books',[]);z[i].title=t.textContent;SH.books=z;saveLocal();};a2.onblur=()=>{const z=g('books',[]);z[i].author=a2.textContent;SH.books=z;saveLocal();};dd.onblur=()=>{const z=g('books',[]);z[i].desc=dd.textContent;SH.books=z;saveLocal();};const x=d.querySelector('.dx');if(x)x.onclick=()=>{const z=g('books',[]);z.splice(i,1);SH.books=z;saveLocal();renderBooks();};});}
+function addBook(){if(!ADM)return flash('请先登录');const t=document.getElementById('bt').value.trim(),a=document.getElementById('ba').value.trim(),d=document.getElementById('bd').value.trim();if(!t)return flash('请输入书名');const z=g('books',[]);z.push({title:t,author:a||'佚名',desc:d||'值得一读'});SH.books=z;['bt','ba','bd'].forEach(id=>document.getElementById(id).value='');saveLocal();renderBooks();}
+function renderHonor(){const l=g('honor',[]),b=document.getElementById('hl2');b.innerHTML='';const m=['🥇','🥈','🥉','⭐'];l.forEach((h,i)=>{const d=document.createElement('div');d.className='hr';d.innerHTML='<span class="medal">'+m[i%m.length]+'</span><div><div class="va">'+esc(h.name)+'</div><div class="mt">'+esc(h.reason)+'</div></div>'+(ADM?'<button class="dx" style="margin-left:auto">✕</button>':'');b.appendChild(d);const[n,r]=d.querySelectorAll('.va,.mt');[n,r].forEach(x=>x.setAttribute('ce',ADM?'true':'false'));n.onblur=()=>{const z=g('honor',[]);z[i].name=n.textContent;SH.honor=z;saveLocal();};r.onblur=()=>{const z=g('honor',[]);z[i].reason=r.textContent;SH.honor=z;saveLocal();};const x=d.querySelector('.dx');if(x)x.onclick=()=>{const z=g('honor',[]);z.splice(i,1);SH.honor=z;saveLocal();renderHonor();};});}
+function addHonor(){if(!ADM)return flash('请先登录');const n=document.getElementById('hn').value.trim(),r=document.getElementById('hr').value.trim();if(!n)return flash('请输入姓名');const z=g('honor',[]);z.push({name:n,reason:r||'优秀'});SH.honor=z;['hn','hr'].forEach(id=>document.getElementById(id).value='');saveLocal();renderHonor();}
+function renderDuty(){const l=g('duty',[]),b=document.getElementById('db');b.innerHTML='';l.forEach((d,i)=>{const tr=document.createElement('tr');tr.innerHTML='<td class="va">'+esc(d.item)+'</td><td class="va">'+esc(d.person)+'</td><td><span class="va">'+esc(d.note)+'</span>'+(ADM?'<button class="dx">✕</button>':'')+'</td>';b.appendChild(tr);const[ii,pp,nn]=tr.querySelectorAll('.va');[ii,pp,nn].forEach(x=>x.setAttribute('ce',ADM?'true':'false'));ii.onblur=()=>{const z=g('duty',[]);z[i].item=ii.textContent;SH.duty=z;saveLocal();};pp.onblur=()=>{const z=g('duty',[]);z[i].person=pp.textContent;SH.duty=z;saveLocal();};nn.onblur=()=>{const z=g('duty',[]);z[i].note=nn.textContent;SH.duty=z;saveLocal();};const x=tr.querySelector('.dx');if(x)x.onclick=()=>{const z=g('duty',[]);z.splice(i,1);SH.duty=z;saveLocal();renderDuty();};});}
+function addDuty(){if(!ADM)return flash('请先登录');const it=document.getElementById('di').value.trim(),p=document.getElementById('dp').value.trim();if(!it)return flash('请输入项目');const z=g('duty',[]);z.push({item:it,person:p||'待定',note:''});SH.duty=z;['di','dp'].forEach(id=>document.getElementById(id).value='');saveLocal();renderDuty();}
+function renderSchedule(){const r=g('schedule',[]),b=document.getElementById('sb');b.innerHTML='';r.forEach((row,ri)=>{const tr=document.createElement('tr');tr.innerHTML=row.map((c,ci)=>'<td class="'+(ci===0?'dc':'')+' va">'+esc(c)+'</td>').join('');b.appendChild(tr);tr.querySelectorAll('.va').forEach((el,ci)=>{el.setAttribute('ce',ADM?'true':'false');el.onblur=()=>{const z=g('schedule',[]);if(z[ri])z[ri][ci]=el.textContent;SH.schedule=z;saveLocal();};});});}
 function getMsg(){try{return JSON.parse(localStorage.getItem(MK)||'[]')}catch(e){return[]}}function setMsg(m){localStorage.setItem(MK,JSON.stringify(m))}
 function renderMsg(){const l=getMsg(),b=document.getElementById('ml');b.innerHTML='';if(!l.length){b.innerHTML='<div class="mt" style="text-align:center;padding:20px">还没有留言～</div>';return;}l.slice().reverse().forEach(m=>{const d=document.createElement('div');d.className='mg';d.innerHTML='<div class="mh"><span class="mn">'+esc(m.name)+'</span><span class="mt2">'+esc(m.time)+'</span></div><div class="va">'+esc(m.content)+'</div>';const x=document.createElement('button');x.className='dx';x.style.cssText='position:absolute;top:8px;right:10px';x.textContent='✕';x.onclick=()=>{const z=getMsg().filter(y=>y.id!==m.id);setMsg(z);renderMsg();};d.appendChild(x);b.appendChild(d);});}
 function addMsg(){let n=document.getElementById('mn').value.trim();const c=document.getElementById('mc').value.trim();if(!c)return flash('请输入内容');if(!n)n='匿名同学';const l=getMsg(),now=new Date();l.push({id:Date.now(),name:n,content:c,time:(now.getMonth()+1)+'/'+now.getDate()+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')});setMsg(l);document.getElementById('mn').value='';document.getElementById('mc').value='';renderMsg();}
 function renderAll(){renderHw();renderBooks();renderHonor();renderDuty();renderSchedule();renderMsg();}
 document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('button[data-p]');if(!b)return;document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p-'+b.dataset.p).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});});
-document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey){if(e.key.toLowerCase()==='l'){e.preventDefault();openLogin();}else if(e.key.toLowerCase()==='s'){e.preventDefault();openSync();}else if(e.key.toLowerCase()==='x'){e.preventDefault();doLogout();}}if(e.key==='Escape'){document.getElementById('lm').classList.add('hidden');}});
-document.getElementById('pi')&&document.getElementById('pi').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-(async()=>{
-  // 先立即显示默认内容 + 今日寄语（不等网络）
-  SH=JSON.parse(JSON.stringify(DEF));
-  applySH();
-  renderAll();
-  dq();
-  document.getElementById('yr').textContent=new Date().getFullYear();
-  // 再异步加载 GitHub 数据（覆盖默认）
-  try{await loadData();}catch(e){}
-  // 有 token 则设为管理员
-  if(!!localStorage.getItem(LS.token)){setAdm(true);}
-})();
+document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey){if(e.key.toLowerCase()==='l'){e.preventDefault();openLogin();}else if(e.key.toLowerCase()==='x'){e.preventDefault();doLogout();}}if(e.key==='Escape'){document.getElementById('lm').classList.add('hidden');document.getElementById('pm').classList.add('hidden');}});
+// Enter 键自动登录
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){const lm=document.getElementById('lm');const pm=document.getElementById('pm');if(!lm.classList.contains('hidden'))doLogin();else if(!pm.classList.contains('hidden'))doPwdConfirm();}});
+// 监听全局 contenteditable 元素 blur，自动收集+保存
+document.addEventListener('blur',e=>{const el=e.target;if(el.getAttribute&&el.getAttribute('ce')==='true'&&ADM){const k=el.dataset.k;if(k){let v=el.innerHTML;if(k==='log')v=el.innerText;SH[k]=v;saveLocal();}else{saveLocal();}}},true);
+
+// —— 启动 ——
+SH=JSON.parse(JSON.stringify(DEF));
+// 优先加载本地保存的数据
+if(loadLocal()){applySH();}
+else{applySH();}
+renderAll();
+dq();
+document.getElementById('yr').textContent=new Date().getFullYear();
+// 检查是否已登录
+if(!!localStorage.getItem(LS.user)){setAdm(true);}
 </script></body></html>
