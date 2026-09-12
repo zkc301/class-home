@@ -81,5 +81,11 @@
       "content": "666",
       "time": "9/12 17:37"
     }
+  ],
+  "games": [
+    {
+      "name": "zzz",
+      "url": "https://ncicheng.github.io/mygame/"
+    }
   ]
 }
