@@ -216,16 +216,26 @@ function gh(method,path,body){return new Promise((resolve,reject)=>{const url='h
 async function saveAll(){
   if(!ADM)return flash('请先登录');
   flash('正在同步...',999999);
+  const enc=btoa(unescape(encodeURIComponent(JSON.stringify(SH,null,2))));
+  const doPut=async(sha)=>{const body={message:'sync '+new Date().toISOString(),content:enc};if(sha)body.sha=sha;return gh('PUT','data.json',body);};
   try{
     let sha=localStorage.getItem(LS.sha);
-    if(!sha){try{const j=await gh('GET','data.json');sha=j.sha;localStorage.setItem(LS.sha,sha);}catch(e){/* 新仓库可能还没有，忽略 */}}
-    const enc=btoa(unescape(encodeURIComponent(JSON.stringify(SH,null,2))));
-    const body={message:'sync '+new Date().toISOString(),content:enc};
-    if(sha)body.sha=sha;
-    const j=await gh('PUT','data.json',body);
+    if(!sha){const j=await gh('GET','data.json');sha=j.sha;localStorage.setItem(LS.sha,sha);}
+    let j=await doPut(sha);
     localStorage.setItem(LS.sha,j.content.sha);
     flash('已同步全班 ✅ （所有人刷新即看到）',2500);
   }catch(e){
+    // sha 不匹配 → 重新 GET 最新 sha 重试一次
+    if(e.message&&e.message.includes('does not match')){
+      try{
+        const j2=await gh('GET','data.json');
+        localStorage.setItem(LS.sha,j2.sha);
+        const j=await doPut(j2.sha);
+        localStorage.setItem(LS.sha,j.content.sha);
+        flash('已同步全班 ✅ （自动修复了版本冲突）',2500);
+        return;
+      }catch(e2){e=e2;}
+    }
     console.error('saveAll error',e);
     flash('同步失败：'+(e.message||'未知错误')+'，内容已保存在本手机',4000);
   }
