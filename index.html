@@ -190,7 +190,7 @@ const DEF_KEYS='151128';
 const DEF={title:'阳光班班级主页',infoClass:'三年二班',infoTeacher:'王老师',infoCount:'42人',infoSlogan:'向阳而生，逐光而行',notice:'1. 周五大扫除，请值日同学准时到岗。<br>2. 本周三穿校服佩戴红领巾。<br>3. 读书角已上新，欢迎借阅。',log:'【9月1日】开学第一天，精神饱满，新书到位。\n\n【9月2日】语文朗读比赛，张小明表现突出。\n\n【9月3日】天气晴朗，课间操全员到齐。',footer:'阳光班班级主页 · 班主任可修改内容 · 内容同步至 GitHub',homework:[{subject:'语文',content:'抄写生字词各两遍，背诵古诗三首'},{subject:'数学',content:'课本P12-13练习题1-5'},{subject:'英语',content:'听读Unit2，完成练习册'}],books:[{title:'夏洛的网',author:'E.B.怀特',desc:'关于爱、生命与承诺的温柔故事。'},{title:'小王子',author:'圣埃克苏佩里',desc:'真正重要的东西用眼睛是看不见的。'},{title:'窗边的小豆豆',author:'黑柳彻子',desc:'巴学园里发生的趣事。'}],honor:[{name:'张小明',reason:'数学竞赛一等奖'},{name:'李华',reason:'本月之星·乐于助人'},{name:'王芳',reason:'读书笔记优秀'}],duty:[{item:'擦黑板',person:'张小明',note:'每节课间'},{item:'扫地',person:'李华、王芳',note:'放学后'},{item:'倒垃圾',person:'刘强',note:'下午放学前'},{item:'关门窗灯',person:'值日班长',note:'最后离开'}],schedule:[['第一节','语文','数学','英语','语文','数学'],['第二节','数学','语文','数学','英语','语文'],['第三节','英语','科学','语文','数学','英语'],['第四节','音乐','道法','体育','科学','美术'],['第五节','美术','体育','道法','音乐','道法'],['第六节','班会','阅读','书法','阅读','自习']]};
 let SH={},ADM=false;MK=LS.msg;
 function dq(){const n=new Date(),s=n.getFullYear()*10000+(n.getMonth()+1)*100+n.getDate();document.getElementById('dq').textContent=Q[s%Q.length];const w=['日','一','二','三','四','五','六'][n.getDay()];document.getElementById('td').textContent=n.getFullYear()+'年'+(n.getMonth()+1)+'月'+n.getDate()+'日 星期'+w;}
-function flash(m,t=1600){const d=document.createElement('div');d.textContent=m;d.style.cssText='position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#4ea3cc;color:#fff;padding:10px 22px;border-radius:24px;z-index:999;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.2)';document.body.appendChild(d);setTimeout(()=>d.remove(),t);}
+function flash(m,t=1600){document.querySelectorAll('.__flash').forEach(x=>x.remove());const d=document.createElement('div');d.className='__flash';d.textContent=m;d.style.cssText='position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#4ea3cc;color:#fff;padding:10px 22px;border-radius:24px;z-index:9999;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.2);max-width:90vw;text-align:center';document.body.appendChild(d);setTimeout(()=>{if(d.parentNode)d.remove();},t);}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function g(k){return SH[k]!==undefined?SH[k]:DEF[k];}
 function applySH(){document.querySelectorAll('[data-k]').forEach(e=>{const k=e.dataset.k;const v=SH[k];if(v===undefined)return;if(k==='log')e.innerHTML=String(v).replace(/\n/g,'<br>');else e.innerHTML=v;});document.title=SH.title||'班级主页';}
@@ -211,8 +211,25 @@ const GH_TOKEN=(
   'AaNn6z5OimckYGkJib88ZFMv1'+
   'LVcoIXD3D6JR7r4jUxvW'
 );
-async function gh(method,path,body){const url='https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/'+path;const opts={method,headers:{Authorization:'Bearer '+GH_TOKEN,Accept:'application/vnd.github+json','Content-Type':'application/json'}};if(body!==undefined)opts.body=JSON.stringify(body);const r=await fetch(url,opts);if(!r.ok)throw new Error((await r.json()).message||r.status);return r.json();}
-async function saveAll(){if(!ADM)return flash('请先登录');const sha=localStorage.getItem(LS.sha);const enc=btoa(unescape(encodeURIComponent(JSON.stringify(SH,null,2))));const body={message:'sync '+new Date().toISOString(),content:enc};if(sha)body.sha=sha;try{const j=await gh('PUT','data.json',body);localStorage.setItem(LS.sha,j.content.sha);flash('已同步全班 ✅',2000);}catch(e){flash('同步失败：'+(e.message||'网络错'),2500);}}
+// GitHub 同步 —— 用 XHR 兼容微信浏览器，30秒超时
+function gh(method,path,body){return new Promise((resolve,reject)=>{const url='https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/'+path;const x=new XMLHttpRequest();x.open(method,url,true);x.setRequestHeader('Authorization','Bearer '+GH_TOKEN);x.setRequestHeader('Accept','application/vnd.github+json');if(body!==undefined)x.setRequestHeader('Content-Type','application/json');let done=false;const to=setTimeout(()=>{if(!done){done=true;try{x.abort();}catch(e){}reject(new Error('超时：网络慢或微信限制'));}},30000);x.onload=()=>{if(done)return;done=true;clearTimeout(to);try{const j=JSON.parse(x.responseText);if(x.status>=200&&x.status<300)resolve(j);else reject(new Error(j.message||('HTTP '+x.status)));}catch(e){reject(new Error('响应解析失败'));}};x.onerror=()=>{if(done)return;done=true;clearTimeout(to);reject(new Error('网络错误（可能是微信限制了跨域请求）'));};x.onabort=()=>{if(done)return;done=true;clearTimeout(to);reject(new Error('请求已取消'));};x.send(body!==undefined?JSON.stringify(body):null);});}
+async function saveAll(){
+  if(!ADM)return flash('请先登录');
+  flash('正在同步...',999999);
+  try{
+    let sha=localStorage.getItem(LS.sha);
+    if(!sha){try{const j=await gh('GET','data.json');sha=j.sha;localStorage.setItem(LS.sha,sha);}catch(e){/* 新仓库可能还没有，忽略 */}}
+    const enc=btoa(unescape(encodeURIComponent(JSON.stringify(SH,null,2))));
+    const body={message:'sync '+new Date().toISOString(),content:enc};
+    if(sha)body.sha=sha;
+    const j=await gh('PUT','data.json',body);
+    localStorage.setItem(LS.sha,j.content.sha);
+    flash('已同步全班 ✅ （所有人刷新即看到）',2500);
+  }catch(e){
+    console.error('saveAll error',e);
+    flash('同步失败：'+(e.message||'未知错误')+'，内容已保存在本手机',4000);
+  }
+}
 function setAdm(on){ADM=on;document.body.classList.toggle('admin',on);document.querySelectorAll('[data-k]').forEach(e=>{e.setAttribute('contenteditable',on?'true':'false');e.setAttribute('ce',on?'true':'false');});const ab=document.getElementById('ab');if(on){ab.style.display='flex';document.getElementById('as').textContent='✅ 已登录';}else{ab.style.display='none';}renderAll();}
 function renderHw(){const l=g('homework',[]),b=document.getElementById('hl');b.innerHTML='';l.forEach((it,i)=>{const d=document.createElement('div');d.className='hw';d.innerHTML='<span class="tag">'+esc(it.subject)+'</span><span class="va">'+esc(it.content)+'</span>'+(ADM?'<button class="dx">✕</button>':'');const c=d.querySelector('.va');c.setAttribute('contenteditable',ADM?'true':'false');c.setAttribute('ce',ADM?'true':'false');c.onblur=()=>{const a=g('homework',[]);a[i].content=c.textContent;SH.homework=a;saveLocal();};const x=d.querySelector('.dx');if(x)x.onclick=()=>{const a=g('homework',[]);a.splice(i,1);SH.homework=a;saveLocal();renderHw();};b.appendChild(d);});}
 function addHw(){if(!ADM)return flash('请先登录');const s=document.getElementById('hs').value,c=document.getElementById('hc').value.trim();if(!c)return flash('请输入内容');const a=g('homework',[]);a.push({subject:s,content:c});SH.homework=a;document.getElementById('hc').value='';saveLocal();renderHw();}
@@ -242,7 +259,10 @@ renderAll();
 dq();
 document.getElementById('yr').textContent=new Date().getFullYear();
 // 异步从 GitHub 拉已同步的数据
-fetch('https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/data.json?t='+Date.now()).then(r=>{if(r.ok)return r.json();throw 0;}).then(d=>{if(d&&d.title){SH=d;saveLocal();applySH();renderAll();}}).catch(()=>{});
+// 从 raw.githubusercontent.com 拉已同步的数据（XHR，兼容微信）
+function loadRemote(){return new Promise((resolve)=>{const url='https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/data.json?t='+Date.now();const x=new XMLHttpRequest();x.open('GET',url,true);x.timeout=8000;x.onload=()=>{if(x.status===200){try{const d=JSON.parse(x.responseText);if(d&&d.title)resolve(d);else resolve(null);}catch(e){resolve(null);}}else resolve(null);};x.onerror=()=>resolve(null);x.ontimeout=()=>resolve(null);x.send(null);});}
+// 拉已同步的数据覆盖本地
+loadRemote().then(d=>{if(d){SH=d;saveLocal();applySH();renderAll();}});
 // 同时 GET 一次拿 sha 备同步用
 gh('GET','data.json').then(j=>{localStorage.setItem(LS.sha,j.sha);}).catch(()=>{});
 // 检查是否已登录
