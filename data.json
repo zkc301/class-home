@@ -7,7 +7,16 @@
   "notice": "<br>",
   "log": "\n",
   "footer": "@张楷晨",
-  "homework": [],
+  "homework": [
+    {
+      "subject": "语文",
+      "content": "感恩日记，习作"
+    },
+    {
+      "subject": "英语",
+      "content": "3课作业本"
+    }
+  ],
   "books": [],
   "honor": [],
   "duty": [],
