@@ -6,7 +6,7 @@
   "infoSlogan": "向阳而生，逐光而行",
   "notice": "<br>",
   "log": "\n",
-  "footer": "@张楷晨",
+  "footer": "(测试)",
   "homework": [
     {
       "subject": "语文",
@@ -74,10 +74,16 @@
       "英语"
     ]
   ],
-  "info-class": "五年二班",
-  "info-teacher": "高老师",
-  "info-count": "45人",
-  "info-slogan": "<br>",
+  "games": [
+    {
+      "name": "千万不要点！！！",
+      "url": "https://www.bilibili.com/video/BV1GJ411x7h7?t=0"
+    },
+    {
+      "name": "杨子轩の小游戏",
+      "url": "https://ncicheng.github.io/mygame/"
+    }
+  ],
   "messages": [
     {
       "id": 1789278364984,
@@ -122,15 +128,5 @@
       "time": "9/15 21:49"
     }
   ],
-  "games": [
-    {
-      "name": "千万不要点！！！",
-      "url": "https://www.bilibili.com/video/BV1GJ411x7h7?t=0"
-    },
-    {
-      "name": "杨子轩の小游戏",
-      "url": "https://ncicheng.github.io/mygame/"
-    }
-  ],
-  "_t": 1789480969967
+  "_t": 1789484831105
 }
