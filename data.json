@@ -80,12 +80,6 @@
   "info-slogan": "<br>",
   "messages": [
     {
-      "id": 1789205828617,
-      "name": "匿名同学",
-      "content": "666",
-      "time": "9/12 17:37"
-    },
-    {
       "id": 1789278364984,
       "name": "匿名同学",
       "content": "密钥是什么",
@@ -137,5 +131,6 @@
       "name": "杨子轩の小游戏",
       "url": "https://ncicheng.github.io/mygame/"
     }
-  ]
+  ],
+  "_t": 1789480969967
 }
