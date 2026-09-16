@@ -4,7 +4,7 @@
   "infoTeacher": "王老师",
   "infoCount": "42人",
   "infoSlogan": "向阳而生，逐光而行",
-  "notice": "测试公告-请同步",
+  "notice": "<br>",
   "log": "",
   "footer": "(测试)",
   "homework": [],
@@ -115,5 +115,9 @@
       "time": "9/15 21:49"
     }
   ],
-  "_t": 1789570725800
+  "_t": 1789571152689,
+  "info-count": "45人",
+  "info-class": "五年二班",
+  "info-teacher": "高老师",
+  "info-slogan": "向阳而生"
 }
