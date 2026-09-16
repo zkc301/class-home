@@ -5,7 +5,7 @@
   "infoCount": "42人",
   "infoSlogan": "向阳而生，逐光而行",
   "notice": "<br>",
-  "log": "\n",
+  "log": "",
   "footer": "(测试)",
   "homework": [],
   "books": [],
@@ -115,5 +115,9 @@
       "time": "9/15 21:49"
     }
   ],
-  "_t": 1789569202559
+  "_t": 1789570466479,
+  "info-class": "五年二班",
+  "info-teacher": "高老师",
+  "info-count": "45人",
+  "info-slogan": "<br>"
 }
