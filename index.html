@@ -320,20 +320,25 @@ async function saveAll(skipAuth){
   flash('正在同步...',999999);
   const doPut=async(sha,enc)=>{const body={message:'sync '+new Date().toISOString(),content:enc};if(sha)body.sha=sha;return gh('PUT','data.json',body);};
   // 通过 API 拉最新远程数据（带 sha，绕过 CDN 缓存）
-  const fetchRemote=async()=>{try{const j=await gh('GET','data.json');if(j&&j.content){const dec=b64_to_utf8(j.content.replace(/\n/g,''));const d=JSON.parse(dec);if(d&&d.title)return{data:validateSH(d),sha:j.sha};}}catch(e){console.warn('fetchRemote failed',e);}return null;};
+  const fetchRemote=async()=>{try{console.log('[saveAll] fetchRemote 开始 gh GET');const j=await gh('GET','data.json');console.log('[saveAll] fetchRemote gh 返回',j&&j.sha?'sha='+j.sha:'无sha','content?',!!(j&&j.content));if(j&&j.content){const dec=b64_to_utf8(j.content.replace(/\n/g,''));const d=JSON.parse(dec);if(d&&d.title)return{data:validateSH(d),sha:j.sha};}}catch(e){console.warn('[saveAll] fetchRemote failed',e);}return null;};
   try{
     // 修复回档：用 API 拉最新远程数据合并本地编辑过的字段
+    console.log('[saveAll] 步骤1: 调用 fetchRemote');
     const r=await fetchRemote();
+    console.log('[saveAll] 步骤2: fetchRemote 返回',r?'有数据':'null','EKEYS=',Array.from(EKEYS));
     if(r&&r.data&&r.data.title){
       const remote=r.data;
       const localEdited={};
       EKEYS.forEach(k=>{if(SH[k]!==undefined)localEdited[k]=SH[k];});
+      console.log('[saveAll] 步骤3: localEdited keys=',Object.keys(localEdited),'remote._t=',remote._t,'SH._t=',SH._t);
       // 合并策略：远程字段为基础，本地编辑过的字段覆盖
       SH=Object.assign({},remote,localEdited);
       saveLocal();applySH();renderAll();
       // 用 API 返回的 sha 直接 PUT，避免再次 GET
       const enc=utf8_to_b64(JSON.stringify(SH,null,2));
+      console.log('[saveAll] 步骤4: 准备 PUT sha='+r.sha+' content长度='+enc.length);
       let j=await doPut(r.sha,enc);
+      console.log('[saveAll] 步骤5: PUT 返回',j&&j.content&&j.content.sha?'成功 sha='+j.content.sha:'失败');
       localStorage.setItem(LS.sha,j.content.sha);
       saveLocal();
       EKEYS.clear();EDITED=false;clearPending();
@@ -343,6 +348,7 @@ async function saveAll(skipAuth){
       return;
     }
     // 远程没有 data.json（首次部署），直接 PUT
+    console.log('[saveAll] 走首次部署分支');
     const enc=utf8_to_b64(JSON.stringify(SH,null,2));
     let sha=localStorage.getItem(LS.sha);
     if(!sha){const j=await gh('GET','data.json');if(j&&j.sha){sha=j.sha;localStorage.setItem(LS.sha,sha);}}
@@ -353,6 +359,7 @@ async function saveAll(skipAuth){
     if(!window[STARTUP_DONE_KEY])EDITED=true;
     flash('已同步全班 ✅ （所有人刷新即看到）',2500);
   }catch(e){
+    console.error('[saveAll] 步骤X: 异常',e.message,e);
     // sha 不匹配 → 重新 GET 最新 sha 重试一次
     if(e.message&&e.message.includes('does not match')){
       try{
