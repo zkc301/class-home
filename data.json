@@ -7,7 +7,12 @@
   "notice": "<br>",
   "log": "",
   "footer": "(测试)",
-  "homework": [],
+  "homework": [
+    {
+      "subject": "科学",
+      "content": "hggn"
+    }
+  ],
   "books": [],
   "honor": [],
   "duty": [],
@@ -115,8 +120,8 @@
       "time": "9/15 21:49"
     }
   ],
-  "_t": 1789572627065,
-  "info-class": "五年二班",
+  "_t": 1789572670048,
+  "info-class": "三年二班",
   "info-teacher": "王老师",
   "info-count": "42人",
   "info-slogan": "向阳而生"
