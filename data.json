@@ -3,16 +3,11 @@
   "infoClass": "三年二班",
   "infoTeacher": "王老师",
   "infoCount": "42人",
-  "infoSlogan": "向阳而生",
+  "infoSlogan": "向阳而生，逐光而行",
   "notice": "<br>",
   "log": "",
   "footer": "(测试)",
-  "homework": [
-    {
-      "subject": "科学",
-      "content": "hggn"
-    }
-  ],
+  "homework": [],
   "books": [],
   "honor": [],
   "duty": [],
@@ -120,5 +115,5 @@
       "time": "9/15 21:49"
     }
   ],
-  "_t": 1789572670048
+  "_t": 1789572941441
 }
