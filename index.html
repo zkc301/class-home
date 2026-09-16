@@ -475,8 +475,8 @@ window.addEventListener('error',e=>{console.error('全局错误:',e.message,e.er
 window.addEventListener('unhandledrejection',e=>{console.error('未处理的Promise错误:',e.reason);});
 // —— 恭喜弹窗：每次打开都显示，5 秒倒计时自动关闭 ——
 (function(){
-  const CW_MONITOR='XXX';   // 班长姓名（占位符，自行替换）
-  const CW_VICE='YYY';      // 副班长姓名（占位符，自行替换）
+  const CW_MONITOR='刘辰伊';   // 班长姓名（占位符，自行替换）
+  const CW_VICE='刘轩言';      // 副班长姓名（占位符，自行替换）
   const CW_SECONDS=5;        // 倒计时秒数
   const modal=document.getElementById('cw');
   if(!modal)return;
