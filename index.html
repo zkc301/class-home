@@ -443,8 +443,31 @@ renderAll();
 dq();
 document.getElementById('yr').textContent=new Date().getFullYear();
 // 异步从 GitHub 拉已同步的数据
-// 从 raw.githubusercontent.com 拉已同步的数据（XHR，兼容微信）
-function loadRemote(){return new Promise((resolve)=>{const url='https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/data.json?t='+Date.now();const x=new XMLHttpRequest();x.open('GET',url,true);x.timeout=8000;x.onload=()=>{if(x.status===200){try{const d=JSON.parse(x.responseText);if(d&&d.title){resolve(validateSH(d));}else resolve(null);}catch(e){console.warn('loadRemote: JSON parse failed',e);resolve(null);}}else resolve(null);};x.onerror=()=>resolve(null);x.ontimeout=()=>resolve(null);x.send(null);});}
+// 优先用 GitHub API（api.github.com 国内更稳定 + 带 token），失败再 fallback 到 jsdelivr CDN
+function loadRemote(){
+  return gh('GET','data.json').then(j=>{
+    if(j&&j.content&&j.sha){
+      try{
+        const dec=b64_to_utf8(j.content.replace(/\n/g,''));
+        const d=JSON.parse(dec);
+        if(d&&d.title){localStorage.setItem(LS.sha,j.sha);return validateSH(d);}
+        console.warn('loadRemote: 远程数据无 title',d);
+      }catch(e){console.warn('loadRemote: JSON 解析失败',e);}
+    }else{console.warn('loadRemote: API 返回异常',j&&j.message);}
+    return null;
+  }).catch(e=>{
+    console.warn('loadRemote: gh API 失败，尝试 jsdelivr CDN',e.message);
+    // fallback: jsdelivr CDN（国内访问更稳）
+    return new Promise((resolve)=>{
+      const url='https://cdn.jsdelivr.net/gh/'+GH_USER+'/'+GH_REPO+'@（root）/data.json?t='+Date.now();
+      const x=new XMLHttpRequest();x.open('GET',url,true);x.timeout=8000;
+      x.onload=()=>{if(x.status===200){try{const d=JSON.parse(x.responseText);if(d&&d.title){resolve(validateSH(d));return;}}catch(e){console.warn('loadRemote: CDN 解析失败',e);}}resolve(null);};
+      x.onerror=()=>{console.warn('loadRemote: CDN 网络错误');resolve(null);};
+      x.ontimeout=()=>{console.warn('loadRemote: CDN 超时');resolve(null);};
+      x.send(null);
+    });
+  });
+}
 // 启动时拉远程数据（用字符串 key 防止与 saveAll 竞态）
 const STARTUP_DONE_KEY='__startup_done__';
 window[STARTUP_DONE_KEY]=false;
