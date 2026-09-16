@@ -162,7 +162,32 @@ footer{text-align:center;color:var(--tl);font-size:clamp(9px,1.1vw,11px);padding
   .dx{padding:8px;font-size:20px}
   [contenteditable="true"]{min-height:1.4em}
 }
+/* —— 恭喜弹窗 —— */
+#cw{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:9998;padding:clamp(12px,3vw,24px);backdrop-filter:blur(4px);overflow:hidden}
+#cw.show{display:flex;animation:cwbg .3s ease}
+@keyframes cwbg{from{opacity:0}to{opacity:1}}
+/* 彩带 */
+.cw-confetti{position:absolute;top:-10vh;width:clamp(8px,1.4vw,12px);height:clamp(14px,2.4vw,20px);opacity:.9;animation:cwfall linear infinite;border-radius:2px}
+@keyframes cwfall{to{transform:translateY(115vh) rotate(720deg)}}
+/* 卡片 */
+.cw-card{background:linear-gradient(135deg,#fff 0%,#eaf4fc 60%,#ffe9ec 100%);border-radius:clamp(14px,3vw,22px);padding:clamp(22px,4.5vw,44px) clamp(18px,4vw,36px) clamp(18px,3vw,28px);max-width:min(440px,92vw);width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3),0 0 0 6px rgba(126,200,227,.25),0 0 40px rgba(255,182,193,.5);border:2px solid #7ec8e3;text-align:center;position:relative;animation:cwspin .9s cubic-bezier(.34,1.56,.64,1)}
+@keyframes cwspin{0%{opacity:0;transform:rotate(-8deg) scale(.4)}60%{opacity:1;transform:rotate(2deg) scale(1.06)}100%{opacity:1;transform:rotate(0) scale(1)}}
+/* 顶部礼盒 */
+.cw-card::before{content:"🎁";position:absolute;top:clamp(-22px,-3vw,-14px);left:50%;transform:translateX(-50%);font-size:clamp(34px,6vw,52px);background:#fff;border-radius:50%;padding:clamp(6px,1.2vw,10px);box-shadow:0 6px 16px rgba(0,0,0,.18);animation:cwbounce 1.2s ease infinite}
+@keyframes cwbounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-8px)}}
+.cw-title{font-size:clamp(16px,2.6vw,22px);font-weight:800;color:#d96666;margin-bottom:clamp(10px,1.8vw,16px);margin-top:clamp(14px,2vw,20px);letter-spacing:1px;text-shadow:0 2px 4px rgba(217,102,102,.15);animation:cwglow 1.5s ease-in-out infinite alternate}
+@keyframes cwglow{from{text-shadow:0 2px 4px rgba(217,102,102,.15)}to{text-shadow:0 2px 12px rgba(217,102,102,.5)}}
+.cw-name{display:flex;flex-direction:column;gap:clamp(8px,1.4vw,12px);margin-bottom:clamp(14px,2.2vw,20px)}
+.cw-row{background:linear-gradient(135deg,#fff6d9,#ffe6ea 70%,#fff);padding:clamp(10px,1.8vw,14px) clamp(12px,2vw,18px);border-radius:clamp(10px,1.6vw,14px);border:2px solid #ffd27d;box-shadow:0 3px 10px rgba(255,180,100,.25);transform:rotate(-1deg);transition:transform .2s}
+.cw-row:nth-child(2){transform:rotate(1deg);border-color:#ffb3c0;box-shadow:0 3px 10px rgba(255,150,180,.3)}
+.cw-row:hover{transform:rotate(0) scale(1.03)}
+.cw-role{font-size:clamp(11px,1.4vw,13px);color:#b08968;margin-bottom:2px;font-weight:600}
+.cw-person{font-size:clamp(17px,2.6vw,22px);font-weight:800;color:#c0392b;letter-spacing:2px}
+.cw-count{font-size:clamp(11px,1.4vw,13px);color:#5d7280;margin-top:clamp(8px,1.2vw,12px)}
+.cw-count b{color:#d96666;font-size:clamp(13px,1.8vw,16px)}
 </style></head><body>
+<!-- 恭喜弹窗 -->
+<div id="cw"><div class="cw-card"><div class="cw-title">🎊 班委当选公告 🎊</div><div class="cw-name"><div class="cw-row"><div class="cw-role">班长</div><div class="cw-person" id="cw-m">XXX</div></div><div class="cw-row"><div class="cw-role">副班长</div><div class="cw-person" id="cw-v">YYY</div></div></div><div class="cw-count"><b id="cw-n">5</b> 秒后自动关闭</div></div></div>
 <div id="ab"><span id="as">🔓 维护者</span> <button class="btn bp" onclick="saveAll()">🔄 同步全班</button> <button class="btn bd" onclick="doLogout()">退出</button></div>
 <header><div class="hi"><div class="br"><div class="lg">📚</div><div><h1 data-k="title">阳光班班级主页</h1><div class="su">温馨 · 进取 · 快乐成长</div></div></div>
 <nav id="nav"><button data-p="home" class="active">首页</button><button data-p="homework">今日作业</button><button data-p="log">班级日志</button><button data-p="books">好书推荐</button><button data-p="honor">光荣榜</button><button data-p="duty">值日表</button><button data-p="message">留言箱</button><button data-p="schedule">课程表</button><button data-p="games">🎮 小游戏</button></nav></div></header>
@@ -199,21 +224,23 @@ function flash(m,t=1600){document.querySelectorAll('.__flash').forEach(x=>x.remo
 function esc(s){if(s===null||s===undefined)return '';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 // 违法违规内容过滤词（命中则禁止发布）
 // 敏感词过滤：采用抖音/快手式分级管控
-// 级别1（直接拒绝）：明确违法内容
-const BLOCK_LEVEL1=['吸毒','贩毒','制造炸弹','非法买卖枪支','邪教宣传','传销组织','洗钱','六合彩','私服外挂','DDoS攻击','SQL注入','洗黑钱','网络诈骗','拐卖儿童','制造毒品'];
+// 级别1（直接拒绝）：明确违法内容（含政治类、恐怖主义、严重犯罪等）
+const BLOCK_LEVEL1=['吸毒','贩毒','制造炸弹','非法买卖枪支','邪教宣传','传销组织','洗钱','六合彩','私服外挂','DDoS攻击','SQL注入','洗黑钱','网络诈骗','拐卖儿童','制造毒品','分裂国家','煽动颠覆','颠覆国家','恐怖主义','极端主义','煽动民族仇恨','民族歧视','种族歧视','煽动暴力','煽动仇恨','煽动歧视','拐卖妇女','非法拘禁','强奸','轮奸','性侵','杀人','投毒','放火','爆炸物','枪械制造','军火交易','走私军火','叛国','煽动叛乱','资助恐怖','宣扬纳粹','宣扬法西斯'];
 // 级别2（打码⚠）：高风险敏感词
-const BLOCK_LEVEL2=['色情','赌博','凶杀','邪教','反动','弹药','炸弹','枪支','黑客攻击'];
+const BLOCK_LEVEL2=['色情','赌博','凶杀','邪教','反动','弹药','炸弹','枪支','黑客攻击','谩骂','辱骂','人身攻击','傻逼','滚蛋','去死','废物','贱人','王八蛋','操你','草泥马'];
 // 白名单：正常用词不拦截（防止子串误伤）
-const ALLOW_WORDS=['逆袭','监管','暴力美学','反对','反思','反转','反常','传染病','传统销售','洗手','金钱观'];
-function isAllowed(s,w){const t=String(s||'');for(const a of ALLOW_WORDS){if(t.includes(a))return true;}return false;}
+const ALLOW_WORDS=['逆袭','监管','暴力美学','反对','反思','反转','反常','传染病','传统销售','洗手','金钱观','反思总结','反常理','反常识','反方向','反过来说','反过来','反弹'];
+function isAllowed(s){const t=String(s||'');for(const a of ALLOW_WORDS){if(t.includes(a))return true;}return false;}
 function checkContent(s){
   const t=String(s||'');
-  // 先过白名单
-  for(const a of ALLOW_WORDS){if(t.includes(a)){/* 白名单词通过，但要确认没有真正的违法词 */}}
-  // 级别1：直接拒绝（精确匹配，避免子串误伤）
-  for(const w of BLOCK_LEVEL1){if(t.includes(w))return{w,w2:null,level:1};}
-  // 级别2：打码处理
-  for(const w of BLOCK_LEVEL2){if(t.includes(w))return{w,w2:null,level:2};}
+  // 先过白名单：若命中白名单词，跳过 BLOCK_LEVEL2（但 BLOCK_LEVEL1 仍要检查）
+  const allowed=isAllowed(t);
+  // 级别1：直接拒绝（精确匹配，白名单也不能豁免）
+  for(const w of BLOCK_LEVEL1){if(t.includes(w))return{w,level:1};}
+  // 级别2：打码处理（若白名单命中则跳过）
+  if(!allowed){
+    for(const w of BLOCK_LEVEL2){if(t.includes(w))return{w,level:2};}
+  }
   return null;
 }
 // 替换敏感词为打码（⚠），保留正常表达
@@ -243,7 +270,7 @@ function validateSH(d){
   r._t=typeof d._t==='number'?d._t:0;
   return r;
 }
-function g(k,d){let v=SH[k];if(v===undefined||v===null)v=DEF[k];return v===undefined?d:v;}
+function g(k,d){let v=SH[k];if(v===undefined||v===null)v=DEF[k];return(v===undefined||v===null)?d:v;}
 function applySH(){document.querySelectorAll('[data-k]').forEach(e=>{const k=e.dataset.k;const v=SH[k];if(v===undefined)return;if(k==='log')e.innerHTML=String(v).replace(/\n/g,'<br>');else e.innerHTML=v;});document.title=SH.title||'班级主页';}
 // —— 本地存储 ——
 function saveLocal(){try{SH._t=Date.now();localStorage.setItem(LS.data,JSON.stringify(SH));return true;}catch(e){console.warn('saveLocal failed',e);return false;}}
@@ -260,6 +287,15 @@ const LOGIN_TIMEOUT=30*60*1000;
 function loginHeartbeat(){if(ADM)localStorage.setItem(LS.user,String(Date.now()));}
 function checkLoginTimeout(){if(!ADM)return;const t=parseInt(localStorage.getItem(LS.user)||'0',10);if(t&&Date.now()-t>LOGIN_TIMEOUT){doLogout();flash('登录已超时，请重新登录');}}
 // —— GitHub 同步 ——
+// UTF-8 安全的 base64 编解码（避免使用废弃的 unescape/escape）
+function utf8_to_b64(str){return btoa(String.fromCharCode(...new TextEncoder().encode(str)));}
+function b64_to_utf8(b64){return new TextDecoder().decode(Uint8Array.from(atob(b64),c=>c.charCodeAt(0)));}
+// ⚠️ 安全提示：以下 GitHub Token 直接硬编码在前端，任何能打开本页面的人都能在源码/控制台中提取它。
+// 风险：Token 一旦泄露，他人可读写本仓库（zkc301/class-home），甚至根据 Token 权限操作其他资源。
+// 缓解建议（按推荐度排序）：
+//   1. 在 GitHub 后台立即吊销当前 Token，重新生成一个仅授权 class-home 仓库 + Contents 读写权限、并设置较短有效期（如 90 天）的 fine-grained PAT。
+//   2. 改用无服务端代理（Cloudflare Worker / Vercel function / GitHub Actions）持有 Token，前端只调用代理接口，避免 Token 出现在前端代码。
+//   3. 如必须保留前端直连，至少把 Token 放到环境变量/CI 注入，避免提交到代码仓库。
 const GH_TOKEN=(
   'github_pat_11CM4P5WA0q'+
   'TPbzioHOLdY_q9mY7rKQ9Qw10m'+
@@ -275,7 +311,7 @@ async function saveAll(skipAuth){
   flash('正在同步...',999999);
   const doPut=async(sha,enc)=>{const body={message:'sync '+new Date().toISOString(),content:enc};if(sha)body.sha=sha;return gh('PUT','data.json',body);};
   // 通过 API 拉最新远程数据（带 sha，绕过 CDN 缓存）
-  const fetchRemote=async()=>{try{const j=await gh('GET','data.json');if(j&&j.content){const dec=decodeURIComponent(escape(atob(j.content.replace(/\n/g,''))));const d=JSON.parse(dec);if(d&&d.title)return{data:validateSH(d),sha:j.sha};}}catch(e){console.warn('fetchRemote failed',e);}return null;};
+  const fetchRemote=async()=>{try{const j=await gh('GET','data.json');if(j&&j.content){const dec=b64_to_utf8(j.content.replace(/\n/g,''));const d=JSON.parse(dec);if(d&&d.title)return{data:validateSH(d),sha:j.sha};}}catch(e){console.warn('fetchRemote failed',e);}return null;};
   try{
     // 修复回档：用 API 拉最新远程数据合并本地编辑过的字段
     const r=await fetchRemote();
@@ -287,25 +323,25 @@ async function saveAll(skipAuth){
       SH=Object.assign({},remote,localEdited);
       saveLocal();applySH();renderAll();
       // 用 API 返回的 sha 直接 PUT，避免再次 GET
-      const enc=btoa(unescape(encodeURIComponent(JSON.stringify(SH,null,2))));
+      const enc=utf8_to_b64(JSON.stringify(SH,null,2));
       let j=await doPut(r.sha,enc);
       localStorage.setItem(LS.sha,j.content.sha);
       saveLocal();
       EKEYS.clear();EDITED=false;clearPending();
       // 如果启动时的 loadRemote 还未完成，标记 EDITED 阻止它覆盖
-      if(!window[STARTUP_DONE])EDITED=true;
+      if(!window[STARTUP_DONE_KEY])EDITED=true;
       flash('已同步全班 ✅ （所有人刷新即看到）',2500);
       return;
     }
     // 远程没有 data.json（首次部署），直接 PUT
-    const enc=btoa(unescape(encodeURIComponent(JSON.stringify(SH,null,2))));
+    const enc=utf8_to_b64(JSON.stringify(SH,null,2));
     let sha=localStorage.getItem(LS.sha);
-    if(!sha){const j=await gh('GET','data.json');sha=j.sha;localStorage.setItem(LS.sha,sha);}
+    if(!sha){const j=await gh('GET','data.json');if(j&&j.sha){sha=j.sha;localStorage.setItem(LS.sha,sha);}}
     let j=await doPut(sha,enc);
     localStorage.setItem(LS.sha,j.content.sha);
     saveLocal();
     EKEYS.clear();EDITED=false;clearPending();
-    if(!window[STARTUP_DONE])EDITED=true;
+    if(!window[STARTUP_DONE_KEY])EDITED=true;
     flash('已同步全班 ✅ （所有人刷新即看到）',2500);
   }catch(e){
     // sha 不匹配 → 重新 GET 最新 sha 重试一次
@@ -318,14 +354,15 @@ async function saveAll(skipAuth){
           SH=Object.assign({},r2.data,localEdited);
           saveLocal();applySH();renderAll();
         }
-        const enc=btoa(unescape(encodeURIComponent(JSON.stringify(SH,null,2))));
+        const enc=utf8_to_b64(JSON.stringify(SH,null,2));
         const j2=await gh('GET','data.json');
+        if(!j2||!j2.sha)throw new Error('无法获取远程 sha');
         localStorage.setItem(LS.sha,j2.sha);
         const j=await doPut(j2.sha,enc);
         localStorage.setItem(LS.sha,j.content.sha);
         saveLocal();
         EKEYS.clear();EDITED=false;clearPending();
-        if(!window[STARTUP_DONE])EDITED=true;
+        if(!window[STARTUP_DONE_KEY])EDITED=true;
         flash('已同步全班 ✅ （自动修复了版本冲突）',2500);
         return;
       }catch(e2){e=e2;}
@@ -337,25 +374,48 @@ async function saveAll(skipAuth){
 }
 function setAdm(on){ADM=on;document.body.classList.toggle('admin',on);document.querySelectorAll('[data-k]').forEach(e=>{e.setAttribute('contenteditable',on?'true':'false');e.setAttribute('ce',on?'true':'false');});const ab=document.getElementById('ab');if(on){ab.style.display='flex';document.getElementById('as').textContent='✅ 已登录';}else{ab.style.display='none';}if(!SH.title&&!Object.keys(SH).length&&loadLocal()){}renderAll();}
 function renderHw(){const l=g('homework',[]),b=document.getElementById('hl');b.innerHTML='';l.forEach((it,i)=>{const d=document.createElement('div');d.className='hw';d.innerHTML='<span class="tag">'+esc(it.subject)+'</span><span class="va">'+esc(it.content)+'</span>'+(ADM?'<button class="dx">✕</button>':'');const c=d.querySelector('.va');c.setAttribute('contenteditable',ADM?'true':'false');c.setAttribute('ce',ADM?'true':'false');c.onblur=()=>{const a=g('homework',[]);a[i].content=c.textContent;SH.homework=a;markEdited('homework');saveLocal();};const x=d.querySelector('.dx');if(x)x.onclick=()=>{const a=g('homework',[]);a.splice(i,1);SH.homework=a;markEdited('homework');saveLocal();renderHw();};b.appendChild(d);});}
-function addHw(){if(!ADM)return flash('请先登录');const s=document.getElementById('hs').value,c=document.getElementById('hc').value.trim();if(!c)return flash('请输入内容');if(c.length>500)return flash('内容过长');const chk=checkContent(s+' '+c);if(chk&&chk.level===1)return flash('🚫 内容包含违法词汇，已拒绝',3000);const a=g('homework',[]);a.push({subject:s||'通用',content:chk&&chk.level===2?maskContent(c):c});SH.homework=a;markEdited('homework');document.getElementById('hc').value='';saveLocal();renderHw();}
+function addHw(){if(!ADM)return flash('请先登录');const s=document.getElementById('hs').value,c=document.getElementById('hc').value.trim();if(!c)return flash('请输入内容');if(c.length>500)return flash('内容过长');const chk=checkContent(s+' '+c);if(chk&&chk.level===1)return flash('🚫 内容包含违法词汇「'+chk.w+'」，已拒绝',3000);const a=g('homework',[]);a.push({subject:s||'通用',content:chk&&chk.level===2?maskContent(c):c});SH.homework=a;markEdited('homework');document.getElementById('hc').value='';saveLocal();renderHw();}
 function renderBooks(){const l=g('books',[]),g2=document.getElementById('bl');g2.innerHTML='';l.forEach((b,i)=>{const d=document.createElement('div');d.className='bk';d.innerHTML='<div class="bt">'+esc(b.title)+'</div><div class="ba">'+esc(b.author)+'</div><div class="va">'+esc(b.desc)+'</div>'+(ADM?'<button class="dx">✕</button>':'');g2.appendChild(d);const[t,a2,dd]=d.querySelectorAll('.bt,.ba,.va');[t,a2,dd].forEach(x=>{x.setAttribute('contenteditable',ADM?'true':'false');x.setAttribute('ce',ADM?'true':'false');});t.onblur=()=>{const z=g('books',[]);z[i].title=t.textContent;SH.books=z;markEdited('books');saveLocal();};a2.onblur=()=>{const z=g('books',[]);z[i].author=a2.textContent;SH.books=z;markEdited('books');saveLocal();};dd.onblur=()=>{const z=g('books',[]);z[i].desc=dd.textContent;SH.books=z;markEdited('books');saveLocal();};const x=d.querySelector('.dx');if(x)x.onclick=()=>{const z=g('books',[]);z.splice(i,1);SH.books=z;markEdited('books');saveLocal();renderBooks();};});}
-function addBook(){if(!ADM)return flash('请先登录');const t=document.getElementById('bt').value.trim(),a=document.getElementById('ba').value.trim(),d=document.getElementById('bd').value.trim();if(!t)return flash('请输入书名');if(t.length>50)return flash('书名过长');const chk=checkContent(t+' '+a+' '+d);if(chk&&chk.level===1)return flash('🚫 内容包含违法词汇，已拒绝',3000);const z=g('books',[]);z.push({title:chk&&chk.level===2?maskContent(t):t,author:a||'佚名',desc:chk&&chk.level===2?maskContent(d):d});SH.books=z;markEdited('books');['bt','ba','bd'].forEach(id=>document.getElementById(id).value='');saveLocal();renderBooks();}
+function addBook(){if(!ADM)return flash('请先登录');const t=document.getElementById('bt').value.trim(),a=document.getElementById('ba').value.trim(),d=document.getElementById('bd').value.trim();if(!t)return flash('请输入书名');if(t.length>50)return flash('书名过长');const chk=checkContent(t+' '+a+' '+d);if(chk&&chk.level===1)return flash('🚫 内容包含违法词汇「'+chk.w+'」，已拒绝',3000);const z=g('books',[]);z.push({title:chk&&chk.level===2?maskContent(t):t,author:a||'佚名',desc:chk&&chk.level===2?maskContent(d):d});SH.books=z;markEdited('books');['bt','ba','bd'].forEach(id=>document.getElementById(id).value='');saveLocal();renderBooks();}
 function renderHonor(){const l=g('honor',[]),b=document.getElementById('hl2');b.innerHTML='';const m=['🥇','🥈','🥉','⭐'];l.forEach((h,i)=>{const d=document.createElement('div');d.className='hr';d.innerHTML='<span class="medal">'+m[i%m.length]+'</span><div><div class="va">'+esc(h.name)+'</div><div class="mt">'+esc(h.reason)+'</div></div>'+(ADM?'<button class="dx" style="margin-left:auto">✕</button>':'');b.appendChild(d);const[n,r]=d.querySelectorAll('.va,.mt');[n,r].forEach(x=>{x.setAttribute('contenteditable',ADM?'true':'false');x.setAttribute('ce',ADM?'true':'false');});n.onblur=()=>{const z=g('honor',[]);z[i].name=n.textContent;SH.honor=z;markEdited('honor');saveLocal();};r.onblur=()=>{const z=g('honor',[]);z[i].reason=r.textContent;SH.honor=z;markEdited('honor');saveLocal();};const x=d.querySelector('.dx');if(x)x.onclick=()=>{const z=g('honor',[]);z.splice(i,1);SH.honor=z;markEdited('honor');saveLocal();renderHonor();};});}
-function addHonor(){if(!ADM)return flash('请先登录');const n=document.getElementById('hn').value.trim(),r=document.getElementById('hr').value.trim();if(!n)return flash('请输入姓名');if(n.length>20)return flash('姓名过长');const chk=checkContent(n+' '+r);if(chk&&chk.level===1)return flash('🚫 内容包含违法词汇，已拒绝',3000);const z=g('honor',[]);z.push({name:chk&&chk.level===2?maskContent(n):n,reason:chk&&chk.level===2?maskContent(r||'优秀'):r||'优秀'});SH.honor=z;markEdited('honor');['hn','hr'].forEach(id=>document.getElementById(id).value='');saveLocal();renderHonor();}
+function addHonor(){if(!ADM)return flash('请先登录');const n=document.getElementById('hn').value.trim(),r=document.getElementById('hr').value.trim();if(!n)return flash('请输入姓名');if(n.length>20)return flash('姓名过长');const chk=checkContent(n+' '+r);if(chk&&chk.level===1)return flash('🚫 内容包含违法词汇「'+chk.w+'」，已拒绝',3000);const z=g('honor',[]);z.push({name:chk&&chk.level===2?maskContent(n):n,reason:chk&&chk.level===2?maskContent(r||'优秀'):r||'优秀'});SH.honor=z;markEdited('honor');['hn','hr'].forEach(id=>document.getElementById(id).value='');saveLocal();renderHonor();}
 function renderDuty(){const l=g('duty',[]),b=document.getElementById('db');b.innerHTML='';l.forEach((d,i)=>{const tr=document.createElement('tr');tr.innerHTML='<td class="va">'+esc(d.item)+'</td><td class="va">'+esc(d.person)+'</td><td><span class="va">'+esc(d.note)+'</span>'+(ADM?'<button class="dx">✕</button>':'')+'</td>';b.appendChild(tr);const[ii,pp,nn]=tr.querySelectorAll('.va');[ii,pp,nn].forEach(x=>{x.setAttribute('contenteditable',ADM?'true':'false');x.setAttribute('ce',ADM?'true':'false');});ii.onblur=()=>{const z=g('duty',[]);z[i].item=ii.textContent;SH.duty=z;markEdited('duty');saveLocal();};pp.onblur=()=>{const z=g('duty',[]);z[i].person=pp.textContent;SH.duty=z;markEdited('duty');saveLocal();};nn.onblur=()=>{const z=g('duty',[]);z[i].note=nn.textContent;SH.duty=z;markEdited('duty');saveLocal();};const x=tr.querySelector('.dx');if(x)x.onclick=()=>{const z=g('duty',[]);z.splice(i,1);SH.duty=z;markEdited('duty');saveLocal();renderDuty();};});}
-function addDuty(){if(!ADM)return flash('请先登录');const it=document.getElementById('di').value.trim(),p=document.getElementById('dp').value.trim();if(!it)return flash('请输入项目');if(it.length>50)return flash('项目名过长');const chk=checkContent(it+' '+p);if(chk&&chk.level===1)return flash('🚫 内容包含违法词汇，已拒绝',3000);const z=g('duty',[]);z.push({item:chk&&chk.level===2?maskContent(it):it,person:p||'待定',note:''});SH.duty=z;markEdited('duty');['di','dp'].forEach(id=>document.getElementById(id).value='');saveLocal();renderDuty();}
+function addDuty(){if(!ADM)return flash('请先登录');const it=document.getElementById('di').value.trim(),p=document.getElementById('dp').value.trim();if(!it)return flash('请输入项目');if(it.length>50)return flash('项目名过长');const chk=checkContent(it+' '+p);if(chk&&chk.level===1)return flash('🚫 内容包含违法词汇「'+chk.w+'」，已拒绝',3000);const z=g('duty',[]);z.push({item:chk&&chk.level===2?maskContent(it):it,person:p||'待定',note:''});SH.duty=z;markEdited('duty');['di','dp'].forEach(id=>document.getElementById(id).value='');saveLocal();renderDuty();}
 function renderSchedule(){const r=g('schedule',[]),b=document.getElementById('sb');b.innerHTML='';if(!Array.isArray(r))return;r.forEach((row,ri)=>{if(!Array.isArray(row))return;const tr=document.createElement('tr');tr.innerHTML=row.map((c,ci)=>'<td class="'+(ci===0?'dc':'')+' va">'+esc(c)+'</td>').join('');b.appendChild(tr);tr.querySelectorAll('.va').forEach((el,ci)=>{el.setAttribute('contenteditable',ADM?'true':'false');el.setAttribute('ce',ADM?'true':'false');el.onblur=()=>{const z=g('schedule',[]);if(Array.isArray(z[ri]))z[ri][ci]=el.textContent;SH.schedule=z;markEdited('schedule');saveLocal();};});});}
 function renderGames(){const l=g('games',[]),b=document.getElementById('gl');b.innerHTML='';if(!l.length){b.innerHTML='<div class="mt" style="text-align:center;padding:20px">还没有小游戏～</div>';return;}l.forEach((g2,i)=>{const d=document.createElement('div');d.className='bk';d.style.cursor='pointer';d.innerHTML='<div class="bt">🎮 '+esc(g2.name)+'</div><div class="mt">'+esc(g2.url)+'</div>'+(ADM?'<button class="dx">✕</button>':'');d.onclick=(e)=>{if(!d.querySelector('.dx')||!e.target.classList.contains('dx')){window.open(g2.url,'_blank')}};const x=d.querySelector('.dx');if(x)x.onclick=(e)=>{e.stopPropagation();const z=g('games',[]);z.splice(i,1);SH.games=z;markEdited('games');saveLocal();renderGames();};b.appendChild(d);});}
 function addGame(){if(!ADM)return flash('请先登录');const n=document.getElementById('gn').value.trim(),u=document.getElementById('gu').value.trim();if(!n||!u)return flash('请填写名称和地址');if(!/^https?:\/\//.test(u))return flash('地址必须以 http:// 或 https:// 开头');if(u.length>500)return flash('地址过长');if(n.length>50)return flash('名称过长');const z=g('games',[]);z.push({name:n,url:u});SH.games=z;markEdited('games');['gn','gu'].forEach(id=>document.getElementById(id).value='');saveLocal();renderGames();}
 function getMsg(){return SH.messages||[]}function setMsg(m){SH.messages=m;saveLocal();}
 function renderMsg(){const l=getMsg(),b=document.getElementById('ml');b.innerHTML='';if(!l.length){b.innerHTML='<div class="mt" style="text-align:center;padding:20px">还没有留言～</div>';return;}l.slice().reverse().forEach(m=>{const d=document.createElement('div');d.className='mg';d.innerHTML='<div class="mh"><span class="mn">'+esc(m.name)+'</span><span class="mt2">'+esc(m.time)+'</span></div><div class="va">'+esc(m.content)+'</div>'+(ADM?'<button class="dx" style="position:absolute;top:8px;right:10px">✕</button>':'');const x=d.querySelector('.dx');if(x)x.onclick=()=>{const z=getMsg().filter(y=>y.id!==m.id);setMsg(z);markEdited('messages');renderMsg();};b.appendChild(d);});}
-async function addMsg(){let n=document.getElementById('mn').value.trim();let c=document.getElementById('mc').value.trim();if(!c)return flash('请输入内容');if(c.length>200)return flash('内容不能超过200字');if(n.length>20)return flash('名字不能超过20字');if(!n)n='匿名同学';
-// 分级内容管控（抖音/快手式）
-const chk=checkContent(n+' '+c);
-if(chk){if(chk.level===1)return flash('🚫 内容包含违法词汇，已拒绝发布',3000);// 级别1直接拒
-// 级别2打码后允许发布
-c=maskContent(c);flash('⚠ 检测到敏感词已自动打码',2000);}
-SH.messages=SH.messages||[];const l=getMsg(),now=new Date();l.push({id:Date.now(),name:n,content:c,time:(now.getMonth()+1)+'/'+now.getDate()+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')});setMsg(l);markEdited('messages');document.getElementById('mn').value='';document.getElementById('mc').value='';renderMsg();flash('留言已发布，正在同步...');saveAll(true);}
+async function addMsg(){
+  let n=document.getElementById('mn').value.trim();
+  let c=document.getElementById('mc').value.trim();
+  if(!c)return flash('请输入内容');
+  if(c.length>200)return flash('内容不能超过200字');
+  if(n.length>20)return flash('名字不能超过20字');
+  if(!n)n='匿名同学';
+  // 分级内容管控（抖音/快手式）
+  const chk=checkContent(n+' '+c);
+  if(chk){
+    if(chk.level===1){
+      // 级别1：直接拒绝
+      return flash('🚫 内容包含违法词汇「'+chk.w+'」，已拒绝发布',3000);
+    }else{
+      // 级别2：打码后允许发布
+      c=maskContent(c);
+      flash('⚠ 检测到敏感词「'+chk.w+'」已自动打码',2000);
+    }
+  }
+  SH.messages=SH.messages||[];
+  const l=getMsg(),now=new Date();
+  l.push({id:Date.now(),name:n,content:c,time:(now.getMonth()+1)+'/'+now.getDate()+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')});
+  setMsg(l);
+  markEdited('messages');
+  document.getElementById('mn').value='';
+  document.getElementById('mc').value='';
+  renderMsg();
+  flash('留言已发布，正在同步...');
+  saveAll(true);
+}
 function renderAll(){const fns=[renderHw,renderBooks,renderHonor,renderDuty,renderSchedule,renderGames,renderMsg];for(const fn of fns){try{fn();}catch(e){console.error('renderAll '+fn.name+' failed',e);/*单个栏目崩溃不影响其他*/}}}
 document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('button[data-p]');if(!b)return;document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p-'+b.dataset.p).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});});
 document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey){if(e.key.toLowerCase()==='l'){e.preventDefault();openLogin();}else if(e.key.toLowerCase()==='x'){e.preventDefault();doLogout();}}if(e.key==='Escape'){document.getElementById('lm').classList.add('hidden');}});
@@ -376,11 +436,11 @@ document.getElementById('yr').textContent=new Date().getFullYear();
 // 异步从 GitHub 拉已同步的数据
 // 从 raw.githubusercontent.com 拉已同步的数据（XHR，兼容微信）
 function loadRemote(){return new Promise((resolve)=>{const url='https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/data.json?t='+Date.now();const x=new XMLHttpRequest();x.open('GET',url,true);x.timeout=8000;x.onload=()=>{if(x.status===200){try{const d=JSON.parse(x.responseText);if(d&&d.title){resolve(validateSH(d));}else resolve(null);}catch(e){console.warn('loadRemote: JSON parse failed',e);resolve(null);}}else resolve(null);};x.onerror=()=>resolve(null);x.ontimeout=()=>resolve(null);x.send(null);});}
-// 启动时拉远程数据（用 FLAG 防止与 saveAll 竞态）
-const STARTUP_DONE=Symbol('startup');
-window[STARTUP_DONE]=false;
+// 启动时拉远程数据（用字符串 key 防止与 saveAll 竞态）
+const STARTUP_DONE_KEY='__startup_done__';
+window[STARTUP_DONE_KEY]=false;
 loadRemote().then(d=>{
-  window[STARTUP_DONE]=true;
+  window[STARTUP_DONE_KEY]=true;
   if(!d||!d.title){
     // 远程没数据但有 pending → 直接自动上传
     if(localStorage.getItem(LS.pending)==='1'){
@@ -394,7 +454,7 @@ loadRemote().then(d=>{
   if(localStorage.getItem(LS.pending)==='1'){
     // 把本地编辑过的字段（全部，因为不知道具体哪些）合并到远程
     EKEYS.clear();
-    Object.keys(SH).forEach(k=>{if(k!=='_t'&&d[k]!==undefined)EKEYS.add(k);});
+    Object.keys(SH).forEach(k=>{if(k!='_t'&&d[k]!==undefined)EKEYS.add(k);});
     EDITED=true;
     setTimeout(()=>{flash('检测到上次有未同步内容，正在上传...',999999);saveAll(true);},1000);
     return;
@@ -402,7 +462,7 @@ loadRemote().then(d=>{
   if(!EDITED&&remoteT>=localT){SH=d;saveLocal();applySH();renderAll();}
 });
 // 同时 GET 一次拿 sha 备同步用
-gh('GET','data.json').then(j=>{localStorage.setItem(LS.sha,j.sha);}).catch(()=>{});
+gh('GET','data.json').then(j=>{if(j&&j.sha)localStorage.setItem(LS.sha,j.sha);}).catch(e=>{console.warn('startup GET sha failed',e);});
 // 检查是否已登录（带超时检查，防止公用电脑忘退出）
 (function(){const t=parseInt(localStorage.getItem(LS.user)||'0',10);if(t&&Date.now()-t<=LOGIN_TIMEOUT){setAdm(true);}else if(t){localStorage.removeItem(LS.user);}})();
 // 心跳：用户操作时更新登录时间戳；定时器每分钟检查超时
@@ -413,4 +473,37 @@ window.addEventListener('beforeunload',e=>{if(EDITED||localStorage.getItem(LS.pe
 // 全局错误捕获：防止未预期的错误让页面卡死
 window.addEventListener('error',e=>{console.error('全局错误:',e.message,e.error);});
 window.addEventListener('unhandledrejection',e=>{console.error('未处理的Promise错误:',e.reason);});
+// —— 恭喜弹窗：每次打开都显示，5 秒倒计时自动关闭 ——
+(function(){
+  const CW_MONITOR='XXX';   // 班长姓名（占位符，自行替换）
+  const CW_VICE='YYY';      // 副班长姓名（占位符，自行替换）
+  const CW_SECONDS=5;        // 倒计时秒数
+  const modal=document.getElementById('cw');
+  if(!modal)return;
+  document.getElementById('cw-m').textContent=CW_MONITOR;
+  document.getElementById('cw-v').textContent=CW_VICE;
+  // 生成彩带
+  const confettiColors=['#ff6b6b','#ffd93d','#6bcf7f','#4ea3cc','#b983ff','#ff9ecd'];
+  const confettiCount=30;
+  const frag=document.createDocumentFragment();
+  for(let i=0;i<confettiCount;i++){
+    const c=document.createElement('div');
+    c.className='cw-confetti';
+    c.style.left=Math.random()*100+'%';
+    c.style.background=confettiColors[i%confettiColors.length];
+    c.style.animationDuration=(2.5+Math.random()*2)+'s';
+    c.style.animationDelay=(Math.random()*1.5)+'s';
+    frag.appendChild(c);
+  }
+  modal.appendChild(frag);
+  let n=CW_SECONDS;
+  const nEl=document.getElementById('cw-n');
+  modal.classList.add('show');
+  nEl.textContent=n;
+  const timer=setInterval(()=>{
+    n--;nEl.textContent=n;
+    if(n<=0){clearInterval(timer);modal.classList.remove('show');}
+  },1000);
+  modal.addEventListener('click',()=>{clearInterval(timer);modal.classList.remove('show');},{once:true});
+})();
 </script></body></html>
