@@ -315,6 +315,20 @@ const GH_TOKEN=(
 function gh(method,path,body){return new Promise((resolve,reject)=>{const url='https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/'+path;const x=new XMLHttpRequest();x.open(method,url,true);x.setRequestHeader('Authorization','Bearer '+GH_TOKEN);x.setRequestHeader('Accept','application/vnd.github+json');if(body!==undefined)x.setRequestHeader('Content-Type','application/json');let done=false;const to=setTimeout(()=>{if(!done){done=true;try{x.abort();}catch(e){}reject(new Error('超时：网络慢或微信限制'));}},30000);x.onload=()=>{if(done)return;done=true;clearTimeout(to);try{const j=JSON.parse(x.responseText);if(x.status>=200&&x.status<300)resolve(j);else reject(new Error(j.message||('HTTP '+x.status)));}catch(e){reject(new Error('响应解析失败'));}};x.onerror=()=>{if(done)return;done=true;clearTimeout(to);reject(new Error('网络错误（可能是微信限制了跨域请求）'));};x.onabort=()=>{if(done)return;done=true;clearTimeout(to);reject(new Error('请求已取消'));};x.send(body!==undefined?JSON.stringify(body):null);});}
 async function saveAll(skipAuth){
   if(!ADM&&!skipAuth)return flash('请先登录');
+  // 修复：主动扫描所有 [data-k] 编辑框，把 DOM 当前内容同步到 SH + EKEYS
+  // 防止用户改了内容但 blur 没触发导致 EKEYS 为空、改动丢失
+  document.querySelectorAll('[data-k]').forEach(el=>{
+    const k=el.dataset.k;
+    if(!k)return;
+    let v=(k==='log')?el.innerText:el.innerHTML;
+    // 如果 DOM 内容和 SH 里的不一样，说明有改动但 blur 没触发
+    if(SH[k]!==v){
+      console.log('[saveAll] syncDOM 发现「'+k+'」DOM有改动但未触发blur，主动同步');
+      SH[k]=v;
+      markEdited(k);
+    }
+  });
+  saveLocal();
   EDITED=true;
   showPending(false);
   flash('正在同步...',999999);
