@@ -162,41 +162,7 @@ footer{text-align:center;color:var(--tl);font-size:clamp(9px,1.1vw,11px);padding
   .dx{padding:8px;font-size:20px}
   [contenteditable="true"]{min-height:1.4em}
 }
-/* —— 恭喜弹窗 —— */
-#cw{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:9998;padding:clamp(12px,3vw,24px);backdrop-filter:blur(4px);overflow:hidden}
-#cw.show{display:flex;animation:cwbg .3s ease}
-@keyframes cwbg{from{opacity:0}to{opacity:1}}
-/* 彩带 */
-.cw-confetti{position:absolute;top:-10vh;width:clamp(8px,1.4vw,12px);height:clamp(14px,2.4vw,20px);opacity:.9;animation:cwfall linear infinite;border-radius:2px}
-@keyframes cwfall{to{transform:translateY(115vh) rotate(720deg)}}
-/* 卡片 */
-.cw-card{background:linear-gradient(135deg,#fff 0%,#eaf4fc 60%,#ffe9ec 100%);border-radius:clamp(14px,3vw,22px);padding:clamp(22px,4.5vw,44px) clamp(18px,4vw,36px) clamp(18px,3vw,28px);max-width:min(440px,92vw);width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3),0 0 0 6px rgba(126,200,227,.25),0 0 40px rgba(255,182,193,.5);border:2px solid #7ec8e3;text-align:center;position:relative;animation:cwspin .9s cubic-bezier(.34,1.56,.64,1)}
-@keyframes cwspin{0%{opacity:0;transform:rotate(-8deg) scale(.4)}60%{opacity:1;transform:rotate(2deg) scale(1.06)}100%{opacity:1;transform:rotate(0) scale(1)}}
-/* 顶部礼盒 */
-.cw-card::before{content:"🎁";position:absolute;top:clamp(-22px,-3vw,-14px);left:50%;transform:translateX(-50%);font-size:clamp(34px,6vw,52px);background:#fff;border-radius:50%;padding:clamp(6px,1.2vw,10px);box-shadow:0 6px 16px rgba(0,0,0,.18);animation:cwbounce 1.2s ease infinite}
-@keyframes cwbounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-8px)}}
-.cw-title{font-size:clamp(16px,2.6vw,22px);font-weight:800;color:#d96666;margin-bottom:clamp(10px,1.8vw,16px);margin-top:clamp(42px,6vw,56px);letter-spacing:1px;text-shadow:0 2px 4px rgba(217,102,102,.15);animation:cwglow 1.5s ease-in-out infinite alternate}
-@keyframes cwglow{from{text-shadow:0 2px 4px rgba(217,102,102,.15)}to{text-shadow:0 2px 12px rgba(217,102,102,.5)}}
-.cw-name{display:flex;flex-direction:column;gap:clamp(8px,1.4vw,12px);margin-bottom:clamp(14px,2.2vw,20px)}
-.cw-row{background:linear-gradient(135deg,#fff6d9,#ffe6ea 70%,#fff);padding:clamp(10px,1.8vw,14px) clamp(12px,2vw,18px);border-radius:clamp(10px,1.6vw,14px);border:2px solid #ffd27d;box-shadow:0 3px 10px rgba(255,180,100,.25);transform:rotate(-1deg);transition:transform .2s}
-.cw-row:nth-child(2){transform:rotate(1deg);border-color:#ffb3c0;box-shadow:0 3px 10px rgba(255,150,180,.3)}
-.cw-row:hover{transform:rotate(0) scale(1.03)}
-.cw-role{font-size:clamp(11px,1.4vw,13px);color:#b08968;margin-bottom:2px;font-weight:600}
-.cw-person{font-size:clamp(17px,2.6vw,22px);font-weight:800;color:#c0392b;letter-spacing:2px}
-.cw-count{font-size:clamp(11px,1.4vw,13px);color:#5d7280;margin-top:clamp(8px,1.2vw,12px)}
-.cw-count b{color:#d96666;font-size:clamp(13px,1.8vw,16px)}
-/* —— 恭喜小按钮 —— */
-#cw-btn{position:fixed;bottom:clamp(12px,2.5vw,20px);right:clamp(12px,2.5vw,20px);z-index:9997;background:linear-gradient(135deg,#ff9ecd,#ff6b6b);color:#fff;border:none;border-radius:clamp(22px,3.5vw,32px);padding:clamp(8px,1.5vw,12px) clamp(14px,2.2vw,20px);font-size:clamp(13px,1.8vw,16px);font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(255,107,107,.4),0 0 0 3px rgba(255,255,255,.3);display:flex;align-items:center;gap:clamp(4px,1vw,8px);animation:cwbtn 2s ease-in-out infinite;touch-action:manipulation;transition:transform .2s}
-#cw-btn:hover{transform:scale(1.08) rotate(-3deg)}
-#cw-btn:active{transform:scale(.95)}
-@keyframes cwbtn{0%,100%{box-shadow:0 6px 18px rgba(255,107,107,.4),0 0 0 3px rgba(255,255,255,.3)}50%{box-shadow:0 8px 24px rgba(255,107,107,.6),0 0 0 6px rgba(255,255,255,.2)}}
-#cw-btn .cw-btn-ico{font-size:clamp(16px,2.2vw,20px)}
-#cw-btn .cw-btn-txt{font-size:clamp(11px,1.4vw,13px)}
 </style></head><body>
-<!-- 恭喜弹窗 -->
-<div id="cw"><div class="cw-card"><div class="cw-title">🎊 班委当选公告 🎊</div><div class="cw-name"><div class="cw-row"><div class="cw-role">班长</div><div class="cw-person" id="cw-m">XXX</div></div><div class="cw-row"><div class="cw-role">副班长</div><div class="cw-person" id="cw-v">YYY</div></div></div><div class="cw-count"><b id="cw-n">5</b> 秒后自动关闭</div></div></div>
-<!-- 恭喜小按钮（弹窗关闭后显示，点击重新展开） -->
-<button id="cw-btn" type="button" aria-label="查看班委当选公告"><span class="cw-btn-ico">🎊</span><span class="cw-btn-txt">班委公告</span></button>
 <div id="ab"><span id="as">🔓 维护者</span> <button class="btn bp" onclick="saveAll()">🔄 同步全班</button> <button class="btn bd" onclick="doLogout()">退出</button></div>
 <header><div class="hi"><div class="br"><div class="lg">📚</div><div><h1 data-k="title">阳光班班级主页</h1><div class="su">温馨 · 进取 · 快乐成长</div></div></div>
 <nav id="nav"><button data-p="home" class="active">首页</button><button data-p="homework">今日作业</button><button data-p="log">班级日志</button><button data-p="books">好书推荐</button><button data-p="honor">光荣榜</button><button data-p="duty">值日表</button><button data-p="message">留言箱</button><button data-p="schedule">课程表</button><button data-p="games">🎮 小游戏</button></nav></div></header>
@@ -528,67 +494,4 @@ window.addEventListener('beforeunload',e=>{if(EDITED||localStorage.getItem(LS.pe
 // 全局错误捕获：防止未预期的错误让页面卡死
 window.addEventListener('error',e=>{console.error('全局错误:',e.message,e.error);});
 window.addEventListener('unhandledrejection',e=>{console.error('未处理的Promise错误:',e.reason);});
-// —— 恭喜弹窗：每天只自动弹一次，平时收成小按钮，点按钮可手动展开 ——
-(function(){
-  const CW_MONITOR='刘宸伊';   // 班长姓名
-  const CW_VICE='刘轩言';      // 副班长姓名
-  const CW_SECONDS=5;        // 倒计时秒数
-  const CW_TODAY_KEY='cw_shown_date';  // localStorage 里存的「今日已弹」日期
-  const modal=document.getElementById('cw');
-  const btn=document.getElementById('cw-btn');
-  if(!modal||!btn)return;
-  document.getElementById('cw-m').textContent=CW_MONITOR;
-  document.getElementById('cw-v').textContent=CW_VICE;
-  // 生成彩带（只生成一次）
-  const confettiColors=['#ff6b6b','#ffd93d','#6bcf7f','#4ea3cc','#b983ff','#ff9ecd'];
-  const confettiCount=30;
-  const frag=document.createDocumentFragment();
-  for(let i=0;i<confettiCount;i++){
-    const c=document.createElement('div');
-    c.className='cw-confetti';
-    c.style.left=Math.random()*100+'%';
-    c.style.background=confettiColors[i%confettiColors.length];
-    c.style.animationDuration=(2.5+Math.random()*2)+'s';
-    c.style.animationDelay=(Math.random()*1.5)+'s';
-    frag.appendChild(c);
-  }
-  modal.appendChild(frag);
-  let timer=null;
-  function closeCW(){
-    if(timer){clearInterval(timer);timer=null;}
-    modal.classList.remove('show');
-    btn.style.display='flex';
-  }
-  function openCW(){
-    let n=CW_SECONDS;
-    const nEl=document.getElementById('cw-n');
-    modal.classList.add('show');
-    btn.style.display='none';
-    nEl.textContent=n;
-    if(timer)clearInterval(timer);
-    timer=setInterval(()=>{
-      n--;nEl.textContent=n;
-      if(n<=0)closeCW();
-    },1000);
-  }
-  // 关闭交互：点弹窗背景或卡片都关闭
-  modal.addEventListener('click',closeCW);
-  // 小按钮点击：手动展开（不更新今日已弹标记，可重复点）
-  btn.addEventListener('click',function(e){e.stopPropagation();openCW();});
-  // 启动逻辑：今天没弹过 → 自动弹一次并记录日期；今天已弹过 → 直接显示小按钮
-  try{
-    const today=new Date();
-    const todayStr=String(today.getFullYear())+String(today.getMonth()+1).padStart(2,'0')+String(today.getDate()).padStart(2,'0');
-    const shown=localStorage.getItem(CW_TODAY_KEY);
-    if(shown!==todayStr){
-      localStorage.setItem(CW_TODAY_KEY,todayStr);
-      openCW();
-    }else{
-      btn.style.display='flex';
-    }
-  }catch(e){
-    // localStorage 不可用时降级：每次都弹
-    openCW();
-  }
-})();
 </script></body></html>
