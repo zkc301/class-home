@@ -7,24 +7,7 @@
   "notice": "<br>",
   "log": "",
   "footer": "(测试)",
-  "homework": [
-    {
-      "subject": "数学",
-      "content": "27页练一练二题"
-    },
-    {
-      "subject": "语文",
-      "content": "预习八课"
-    },
-    {
-      "subject": "语文",
-      "content": "写习作漫画老师写在发的纸上"
-    },
-    {
-      "subject": "英语",
-      "content": "作业本 课时练"
-    }
-  ],
+  "homework": [],
   "books": [],
   "honor": [],
   "duty": [],
@@ -132,5 +115,5 @@
       "time": "9/15 21:49"
     }
   ],
-  "_t": 1790597683924
+  "_t": 1790690027109
 }
