@@ -272,10 +272,10 @@ function b64_to_utf8(b64){return new TextDecoder().decode(Uint8Array.from(atob(b
 //   2. 改用无服务端代理（Cloudflare Worker / Vercel function / GitHub Actions）持有 Token，前端只调用代理接口，避免 Token 出现在前端代码。
 //   3. 如必须保留前端直连，至少把 Token 放到环境变量/CI 注入，避免提交到代码仓库。
 const GH_TOKEN=(
-  'github_pat_11CM4P5WA0q'+
-  'TPbzioHOLdY_q9mY7rKQ9Qw10m'+
-  'AaNn6z5OimckYGkJib88ZFMv1'+
-  'LVcoIXD3D6JR7r4jUxvW'
+  'github_pat_11CM4P5WA0U5'+
+  '3089ExvEr5_kWAUj9nuxRBGBd'+
+  'yhYax3E6ZDnL2nlmMYjNuuPVX'+
+  'J80H4FH6DEMBrbJcCGEm'
 );
 // GitHub 同步 —— 用 XHR 兼容微信浏览器，15秒超时（微信后台 setTimeout 可能被节流，缩短超时）
 function gh(method,path,body){return new Promise((resolve,reject)=>{const url='https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/'+path;const x=new XMLHttpRequest();x.open(method,url,true);x.setRequestHeader('Authorization','Bearer '+GH_TOKEN);x.setRequestHeader('Accept','application/vnd.github+json');if(body!==undefined)x.setRequestHeader('Content-Type','application/json');let done=false;const start=Date.now();const to=setTimeout(()=>{if(!done){done=true;try{x.abort();}catch(e){}reject(new Error('超时'+(Date.now()-start)+'ms：网络慢或微信限制'));}},15000);x.onload=()=>{if(done)return;done=true;clearTimeout(to);try{const j=JSON.parse(x.responseText);if(x.status>=200&&x.status<300)resolve(j);else reject(new Error(j.message||('HTTP '+x.status)));}catch(e){reject(new Error('响应解析失败'));}};x.onerror=()=>{if(done)return;done=true;clearTimeout(to);reject(new Error('网络错误（可能是微信限制了跨域请求）'));};x.onabort=()=>{if(done)return;done=true;clearTimeout(to);reject(new Error('请求已取消'));};x.send(body!==undefined?JSON.stringify(body):null);});}
